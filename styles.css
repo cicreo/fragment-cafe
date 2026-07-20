@@ -867,6 +867,49 @@ html, body {
 .type-coffee { background: #2a1a10; color: #c8a882; }
 .type-dessert { background: #1a1020; color: #ddaacc; }
 
+/* ===== Tutorial ===== */
+.tutorial-modal {
+  text-align: center;
+}
+.tutorial-body {
+  font-family: var(--font-text);
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--text-main);
+  min-height: 100px;
+  padding: 8px 0;
+}
+.tutorial-body .emoji-big {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 12px;
+}
+.tutorial-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+.tutorial-dot {
+  width: 8px; height: 8px;
+  background: #2a2a3a;
+  border-radius: 50%;
+}
+.tutorial-dot.active {
+  background: var(--accent-bright);
+}
+.tutorial-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.tutorial-btns .modal-btn {
+  width: auto;
+  min-width: 80px;
+  margin-bottom: 0;
+}
+
 .modal-btns {
   margin-top: 16px;
 }

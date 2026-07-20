@@ -86,6 +86,7 @@
   <button id="btn-skip" title="快进">⏩</button>
   <button id="btn-log" title="回顾">📜</button>
   <button id="btn-bgm" title="音乐">🎵</button>
+  <button id="btn-help" title="帮助">❓</button>
   <button id="btn-menu" title="菜单">⚙</button>
 </div>
 
@@ -171,6 +172,20 @@
 <div id="cg-viewer" onclick="if(ui)ui.closeCGViewer()">
   <img id="cg-viewer-img" src="" alt="">
   <div class="cg-viewer-title" id="cg-viewer-title"></div>
+</div>
+
+<!-- ====== 新手引导 ====== -->
+<div id="tutorial-overlay" class="overlay hidden">
+  <div class="modal tutorial-modal">
+    <div class="modal-title" id="tutorial-title"></div>
+    <div class="tutorial-body" id="tutorial-body"></div>
+    <div class="tutorial-dots" id="tutorial-dots"></div>
+    <div class="tutorial-btns">
+      <button class="modal-btn modal-btn-sm" id="tutorial-prev" style="display:none">← 上一步</button>
+      <button class="modal-btn modal-btn-sm" id="tutorial-next">下一步 →</button>
+      <button class="modal-btn modal-btn-sm" id="tutorial-skip" style="display:none">跳过教程</button>
+    </div>
+  </div>
 </div>
 
 <!-- ====== 扭蛋抽签 ====== -->

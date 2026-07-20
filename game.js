@@ -2552,6 +2552,89 @@ class UIManager {
   }
 }
 
+// ===== Tutorial Data =====
+const TUTORIAL_STEPS = [
+  { title: '欢迎来到碎片咖啡', emoji: '☕', text: '你收到了一封信，继承了一间藏在老巷子里的咖啡馆。这间咖啡馆有一个秘密——每一杯用心的咖啡，都能让人看到一段记忆碎片。接下来的日子，你会在经营咖啡馆的同时，遇到三个不一样的人……' },
+  { title: '如何推进剧情', emoji: '💬', text: '点击底部的对话区域，故事就会继续。当出现选项时，直接点击你想选的回答。你可以用快进⏩跳过已读内容，用自动▶让剧情自己走。' },
+  { title: '暂停菜单', emoji: '⚙', text: '按 ESC 键或点击底部⚙按钮，可以打开暂停菜单。在这里你可以存档💾、读档📂、调整设置⚙、查看对话日志📜。存档有6个槽位，不怕覆盖。' },
+  { title: '日常经营', emoji: '☕', text: '第一周剧情结束后，咖啡馆进入日常经营。每天早晨你可以选择今日活动、期待遇到哪位男主。进入暂停菜单的☕经营管理，可以采购原材料🛒、研发新配方🔬、装饰店铺🪑、给菜单定价📋。赚的钱越多，能做的事越多！' },
+  { title: '隐藏互动', emoji: '💕', text: '点击好感度条——角色会察觉并当场说话。戳角色立绘——他也会回应你。快进、存档、翻对话记录……男主们能感觉到你在做什么。好感度越高，他们的反应越亲密。这个世界的第四面墙，比你想的更薄。' },
+  { title: '扭蛋 & 设备 & CG', emoji: '🔮', text: '攒够钱去🔮扭蛋抽签，抽取男主的专属剧情（提升好感）。去🛒设备商店买咖啡机、唱片机提升品质。CG 会随着剧情、好感度、扭蛋自动解锁，随时去🖼CG画廊回顾。' },
+];
+
+// ===== Tutorial Manager =====
+class TutorialManager {
+  constructor() {
+    this.hasSeen = localStorage.getItem('fc_tutorial') === '1';
+    this.currentStep = 0;
+  }
+
+  start() {
+    if (this.hasSeen) return;
+    this.currentStep = 0;
+    var overlay = document.getElementById('tutorial-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+    this.renderStep();
+  }
+
+  renderStep() {
+    var step = TUTORIAL_STEPS[this.currentStep];
+    if (!step) { this.close(); return; }
+    var titleEl = document.getElementById('tutorial-title');
+    var bodyEl = document.getElementById('tutorial-body');
+    var dotsEl = document.getElementById('tutorial-dots');
+    var prevBtn = document.getElementById('tutorial-prev');
+    var nextBtn = document.getElementById('tutorial-next');
+    var skipBtn = document.getElementById('tutorial-skip');
+    if (titleEl) titleEl.textContent = step.title;
+    if (bodyEl) bodyEl.innerHTML = '<span class="emoji-big">' + step.emoji + '</span>' + step.text;
+    // Dots
+    if (dotsEl) {
+      dotsEl.innerHTML = '';
+      for (var i = 0; i < TUTORIAL_STEPS.length; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'tutorial-dot' + (i === this.currentStep ? ' active' : '');
+        dotsEl.appendChild(dot);
+      }
+    }
+    if (prevBtn) prevBtn.style.display = this.currentStep > 0 ? '' : 'none';
+    if (skipBtn) skipBtn.style.display = this.currentStep > 0 ? '' : 'none';
+    if (nextBtn) nextBtn.textContent = this.currentStep >= TUTORIAL_STEPS.length - 1 ? '开始游戏！' : '下一步 →';
+  }
+
+  next() {
+    if (this.currentStep >= TUTORIAL_STEPS.length - 1) {
+      this.close();
+      return;
+    }
+    this.currentStep++;
+    this.renderStep();
+  }
+
+  prev() {
+    if (this.currentStep > 0) {
+      this.currentStep--;
+      this.renderStep();
+    }
+  }
+
+  close() {
+    var overlay = document.getElementById('tutorial-overlay');
+    if (overlay) overlay.classList.add('hidden');
+    localStorage.setItem('fc_tutorial', '1');
+    this.hasSeen = true;
+    if (game) game.state.isInMenu = false;
+  }
+
+  showHelp() {
+    this.currentStep = 0;
+    var overlay = document.getElementById('tutorial-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+    this.renderStep();
+    if (game) game.state.isInMenu = true;
+  }
+}
+
 // ===== Game State =====
 class GameState {
   constructor() {
@@ -2644,6 +2727,7 @@ class Game {
     this.cgGallery = new CGGallery();
     this.bgm = new BGMManager();
     this.mgmt = new ManagementManager();
+    this.tutorial = new TutorialManager();
     this.init();
   }
 
@@ -2711,6 +2795,21 @@ class Game {
     if (sb) sb.addEventListener('click', () => { ui.closeShop(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
     var galb = document.getElementById('gallery-back');
     if (galb) galb.addEventListener('click', () => { ui.closeGallery(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+
+    // Help button
+    var helpBtn = document.getElementById('btn-help');
+    if (helpBtn) helpBtn.addEventListener('click', () => {
+      this.state.isInMenu = true;
+      if (this.tutorial) this.tutorial.showHelp();
+    });
+
+    // Tutorial buttons
+    var tPrev = document.getElementById('tutorial-prev');
+    var tNext = document.getElementById('tutorial-next');
+    var tSkip = document.getElementById('tutorial-skip');
+    if (tPrev) tPrev.addEventListener('click', () => { if (this.tutorial) this.tutorial.prev(); });
+    if (tNext) tNext.addEventListener('click', () => { if (this.tutorial) this.tutorial.next(); });
+    if (tSkip) tSkip.addEventListener('click', () => { if (this.tutorial) this.tutorial.close(); });
 
     // Management
     var mgmtBtn = document.getElementById('pause-mgmt');
@@ -2848,6 +2947,9 @@ class Game {
     ui.initBgImages();
     // Init BGM volume
     if (this.bgm) this.bgm.setVolume((settings.get('bgmVolume') || 35) / 100);
+
+    // Tutorial - show on first visit
+    if (this.tutorial) this.tutorial.start();
 
     // Start story
     this.state.enterScene('intro');
