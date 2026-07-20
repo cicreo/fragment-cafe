@@ -1486,11 +1486,23 @@ class BGMManager {
   }
 
   startNew(cfg) {
+    var self = this;
     this.audio = new Audio(cfg.file);
     this.audio.loop = true;
     this.audio.volume = this.volume;
-    this.audio.play().catch(function() {});
-    this.audio.onerror = function() { /* file not found - silent */ };
+    this.audio.preload = 'auto';
+    var tryPlay = function() {
+      self.audio.play().then(function() {
+      }).catch(function() {
+        // autoplay blocked, will retry on user interaction
+        self._needsResume = true;
+      });
+    };
+    this.audio.oncanplaythrough = tryPlay;
+    this.audio.onerror = function() { self._needsResume = true; };
+    // Also try immediately (for cached files)
+    this.audio.load();
+    if (this.audio.readyState >= 3) tryPlay();
   }
 
   fadeOutAndPlay(cfg, instant) {
@@ -2908,6 +2920,10 @@ class Game {
     // Dialogue box click to advance
     document.getElementById('dialogue-box').addEventListener('click', () => {
       if (this.state.isInMenu) return;
+      // 首次交互恢复BGM（浏览器autoplay限制）
+      if (this.bgm && this.bgm.audio && this.bgm._needsResume) {
+        this.bgm.audio.play().then(function() { this._needsResume = false; }.bind(this.bgm)).catch(function(){});
+      }
       if (!this.state.isTyping) { if (this.sfx) this.sfx.click(); this.advanceLine(); }
     });
 
@@ -3132,6 +3148,8 @@ class Game {
     // Init BGM volume
     if (this.bgm) this.bgm.setVolume((settings.get('bgmVolume') || 35) / 100);
     if (this.sfx) this.sfx.setVolume((settings.get('sfxVolume') || 30) / 100);
+    // 开场BGM
+    if (this.bgm) this.bgm.play('intro', true);
 
     // Tutorial - show on first visit
     if (this.tutorial) this.tutorial.start();
