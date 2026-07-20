@@ -1391,6 +1391,98 @@ const PHONE_CALLS = [
   // { id: 'ming_call_1', char: 'minglang', speaker: '明朗', affection: 40, file: 'assets/audio/ming_phone_01.mp3', transcript: '...', affBonus: 3 },
 ];
 
+// ===== BGM Config =====
+// 把 MP3 文件放入 assets/audio/bgm/ 即可，文件缺失时静默跳过
+const BGM_CONFIG = [
+  { id: 'intro',   scene: 'intro',   file: 'assets/audio/bgm/bgm_intro.mp3',   name: '序章' },
+  { id: 'cafe',    scene: 'cafe',    file: 'assets/audio/bgm/bgm_cafe_day.mp3', name: '咖啡馆·昼' },
+  { id: 'evening', scene: 'evening', file: 'assets/audio/bgm/bgm_evening.mp3',  name: '咖啡馆·夕' },
+  { id: 'rain',    scene: 'rain',    file: 'assets/audio/bgm/bgm_rain.mp3',     name: '雨夜' },
+  { id: 'ending',  scene: 'ending',  file: 'assets/audio/bgm/bgm_ending.mp3',   name: '结局' },
+  { id: 'tense',   scene: 'tense',   file: 'assets/audio/bgm/bgm_tense.mp3',    name: '暗涌' },
+];
+
+// ===== BGM Manager =====
+class BGMManager {
+  constructor() {
+    this.current = null;
+    this.audio = null;
+    this.volume = 0.35;
+    this.enabled = true;
+    this.fadeTimer = null;
+  }
+
+  play(sceneType, instant) {
+    if (!this.enabled) return;
+    var cfg = BGM_CONFIG.find(function(b) { return b.scene === sceneType; });
+    if (!cfg) cfg = BGM_CONFIG.find(function(b) { return b.id === sceneType; });
+    if (!cfg || cfg.id === this.current) return;
+
+    this.current = cfg.id;
+    if (this.audio) {
+      this.fadeOutAndPlay(cfg, instant);
+    } else {
+      this.startNew(cfg);
+    }
+  }
+
+  startNew(cfg) {
+    this.audio = new Audio(cfg.file);
+    this.audio.loop = true;
+    this.audio.volume = this.volume;
+    this.audio.play().catch(function() {});
+    this.audio.onerror = function() { /* file not found - silent */ };
+  }
+
+  fadeOutAndPlay(cfg, instant) {
+    if (this.fadeTimer) clearInterval(this.fadeTimer);
+    if (instant) {
+      this.audio.pause();
+      this.audio = null;
+      this.startNew(cfg);
+      return;
+    }
+    var self = this;
+    var oldAudio = this.audio;
+    var vol = oldAudio.volume;
+    this.fadeTimer = setInterval(function() {
+      vol -= 0.05;
+      if (vol <= 0) {
+        clearInterval(self.fadeTimer);
+        self.fadeTimer = null;
+        oldAudio.pause();
+        oldAudio.src = '';
+        self.startNew(cfg);
+      } else {
+        oldAudio.volume = Math.max(0, vol);
+      }
+    }, 80);
+  }
+
+  setVolume(v) {
+    this.volume = Math.max(0, Math.min(1, v));
+    if (this.audio) this.audio.volume = this.volume;
+  }
+
+  toggle() {
+    this.enabled = !this.enabled;
+    if (!this.enabled && this.audio) {
+      this.audio.pause();
+    } else if (this.enabled && this.audio) {
+      this.audio.play().catch(function() {});
+    }
+    return this.enabled;
+  }
+
+  playForEnding() {
+    this.play('ending', true);
+  }
+
+  playForDark() {
+    this.play('tense', true);
+  }
+}
+
 // ===== Gacha Manager =====
 class GachaManager {
   constructor() {
@@ -1579,6 +1671,7 @@ class SettingsManager {
       autoDelay: 1500,
       skipSpeed: 50,
       effects: true,
+      bgmVolume: 35,
     };
     this.data = this.load();
   }
@@ -1798,6 +1891,8 @@ class UIManager {
       case 'rain': this.sceneBg.className = 'scene-rain'; this.spawnRain(); break;
       default: this.sceneBg.className = 'scene-intro'; break;
     }
+    // BGM切换
+    if (game && game.bgm) game.bgm.play(scene);
   }
 
   clearRain() {
@@ -2225,6 +2320,7 @@ class Game {
     this.gachaManager = new GachaManager();
     this.equipment = new EquipmentManager();
     this.cgGallery = new CGGallery();
+    this.bgm = new BGMManager();
     this.init();
   }
 
@@ -2298,6 +2394,28 @@ class Game {
     if (pa) pa.addEventListener('click', () => { this.answerPhone(); });
     var pd = document.getElementById('phone-decline');
     if (pd) pd.addEventListener('click', () => { this.declinePhone(); });
+
+    // BGM toggle
+    var bgmBtn = document.getElementById('btn-bgm');
+    if (bgmBtn) bgmBtn.addEventListener('click', () => {
+      if (this.bgm) {
+        var on = this.bgm.toggle();
+        bgmBtn.textContent = on ? '🎵' : '🔇';
+      }
+    });
+
+    // BGM volume slider
+    var bgmSlider = document.getElementById('setting-bgm');
+    var bgmVal = document.getElementById('setting-bgm-val');
+    if (bgmSlider && bgmVal) {
+      bgmSlider.value = (this.bgm ? this.bgm.volume * 100 : 35);
+      bgmVal.textContent = Math.round(bgmSlider.value) + '%';
+      bgmSlider.addEventListener('input', () => {
+        bgmVal.textContent = bgmSlider.value + '%';
+        if (this.bgm) this.bgm.setVolume(parseInt(bgmSlider.value) / 100);
+        settings.set('bgmVolume', parseInt(bgmSlider.value));
+      });
+    }
     // Gacha pool buttons
     document.querySelectorAll('#gacha-overlay .gacha-btn[data-pool]').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -2391,6 +2509,8 @@ class Game {
 
     // Init background images (fix intro not showing)
     ui.initBgImages();
+    // Init BGM volume
+    if (this.bgm) this.bgm.setVolume((settings.get('bgmVolume') || 35) / 100);
 
     // Start story
     this.state.enterScene('intro');
@@ -2479,6 +2599,10 @@ class Game {
         if (this.state.vars.lu_li_aff >= 80) nextScene = 'dark_luli_force';
         else if (this.state.vars.ming_lang_aff >= 80) nextScene = 'dark_ming_force';
         else if (this.state.vars.xiao_mo_aff >= 80) nextScene = 'dark_xiao_force';
+      }
+      // BGM切换：黑化结局用紧张曲
+      if (nextScene && (nextScene.startsWith('dark_') || nextScene.startsWith('ending_dark'))) {
+        if (this.bgm) this.bgm.playForDark();
       }
       this.state.enterScene(nextScene);
       this.advanceLine();
