@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>碎片咖啡</title>
+<style>
+  /* 内联关键字体 + 错误提示，确保即使 CSS 加载失败也有显示 */
+  body { background: #0a0a0f; color: #f0e6d3; font-family: 'SimSun','STSong','Noto Serif SC',serif; margin:0; }
+  #boot-error { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); color:#ff4466; font-size:16px; text-align:center; padding:20px; z-index:9999; background:#0a0a0f; max-width:90%; word-break:break-all; }
+</style>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="boot-error"></div>
+
+<div id="crt-overlay"></div>
+<div id="scanlines"></div>
+
+<div id="game-container">
+  <!-- 顶部状态栏 -->
+  <div id="top-bar">
+    <div class="stat" id="stat-day">
+      <span class="stat-icon">📅</span>
+      <span class="stat-label">第</span><span id="day-num">1</span><span class="stat-label">天</span>
+    </div>
+    <div class="stat" id="stat-money">
+      <span class="stat-icon">💰</span>
+      <span id="money-num">500</span>
+    </div>
+    <div class="stat" id="stat-rep">
+      <span class="stat-icon">⭐</span>
+      <span class="stat-label">口碑</span><span id="rep-num">0</span>
+    </div>
+  </div>
+
+  <!-- 好感度条 -->
+  <div id="affection-bar">
+    <div class="aff-slot" id="aff-luli">
+      <span class="aff-name">陆离</span>
+      <div class="aff-meter"><div class="aff-fill" style="width:0%"></div></div>
+      <span class="aff-val">0</span>
+    </div>
+    <div class="aff-slot" id="aff-minglang">
+      <span class="aff-name">明朗</span>
+      <div class="aff-meter"><div class="aff-fill" style="width:0%"></div></div>
+      <span class="aff-val">0</span>
+    </div>
+    <div class="aff-slot" id="aff-xiaomo">
+      <span class="aff-name">萧默</span>
+      <div class="aff-meter"><div class="aff-fill" style="width:0%"></div></div>
+      <span class="aff-val">0</span>
+    </div>
+  </div>
+
+  <!-- 主画面区 -->
+  <div id="scene-area">
+    <div id="scene-bg" class="scene-intro"></div>
+    <div id="character-display"></div>
+    <div id="meta-glitch" class="hidden"></div>
+  </div>
+
+  <!-- 对话区 -->
+  <div id="dialogue-box">
+    <div id="speaker-name"></div>
+    <div id="dialogue-text"></div>
+    <div id="dialogue-indicator">▼</div>
+  </div>
+
+  <!-- 选项区 -->
+  <div id="choices-container"></div>
+</div>
+
+<!-- 底部操作栏 -->
+<div id="bottom-bar">
+  <button id="btn-save" title="存档">💾</button>
+  <button id="btn-load" title="读档">📂</button>
+  <button id="btn-auto" title="自动">▶</button>
+  <button id="btn-skip" title="快进">⏩</button>
+  <button id="btn-log" title="回顾">📜</button>
+  <button id="btn-menu" title="菜单">⚙</button>
+</div>
+
+<!-- ====== 暂停菜单 ====== -->
+<div id="pause-overlay" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-title">— 暂停 —</div>
+    <button class="modal-btn" id="pause-continue">继续游戏</button>
+    <button class="modal-btn" id="pause-save">保存存档</button>
+    <button class="modal-btn" id="pause-load">读取存档</button>
+    <button class="modal-btn" id="pause-settings">系统设置</button>
+    <button class="modal-btn modal-btn-danger" id="pause-exit">返回标题</button>
+  </div>
+</div>
+
+<!-- ====== 存档菜单 ====== -->
+<div id="save-overlay" class="overlay hidden">
+  <div class="modal modal-wide">
+    <div class="modal-title" id="save-title">— 保存 —</div>
+    <div class="save-slots" id="save-slots"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-sm" id="save-back">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 设置面板 ====== -->
+<div id="settings-overlay" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-title">— 设置 —</div>
+    <div class="setting-row">
+      <span class="setting-label">文字速度</span>
+      <input type="range" id="setting-speed" min="10" max="60" value="30" step="5">
+      <span class="setting-val" id="setting-speed-val">30</span>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">自动播放间隔</span>
+      <input type="range" id="setting-auto-delay" min="500" max="4000" value="1500" step="250">
+      <span class="setting-val" id="setting-auto-delay-val">1.5s</span>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">快进速度</span>
+      <input type="range" id="setting-skip-speed" min="10" max="100" value="50" step="10">
+      <span class="setting-val" id="setting-skip-speed-val">50</span>
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">画面特效</span>
+      <label class="switch"><input type="checkbox" id="setting-effects" checked><span class="slider"></span></label>
+    </div>
+    <button class="modal-btn" id="settings-back">返回</button>
+  </div>
+</div>
+
+<!-- ====== 对话日志 ====== -->
+<div id="log-overlay" class="overlay hidden">
+  <div class="modal modal-wide">
+    <div class="modal-title">— 对话记录 —</div>
+    <div class="log-list" id="log-list"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-sm" id="log-back">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Meta 反应弹出 ====== -->
+<div id="meta-reaction" class="meta-reaction hidden">
+  <span id="meta-reaction-text"></span>
+</div>
+
+<!-- ====== 角色画面点击提示 ====== -->
+<div id="char-touch-indicator" class="hidden"></div>
+
+<script src="game.js"></script>
+</body>
+</html>
