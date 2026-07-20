@@ -2132,17 +2132,30 @@ class UIManager {
     this.charDisplay.innerHTML = '';
     if (!charId || charId === 'none') return;
     if (USE_IMAGES) {
-      const charConf = IMG.char[charId];
+      var charConf = IMG.char[charId];
       if (charConf) {
-        const expr = expression || 'neutral';
-        const src = charConf[expr] || charConf['neutral'];
+        var expr = expression || 'neutral';
+        var src = charConf[expr] || charConf['neutral'];
         if (src) {
-          const img = document.createElement('img');
+          var img = document.createElement('img');
           img.className = 'char-img';
           img.src = src;
           img.alt = charId + ' ' + expr;
-          img.onerror = () => { this.showCharacterFallback(charId); };
-          this.charDisplay.appendChild(img);
+          var self = this;
+          // Pre-check: try loading, fallback on any failure
+          var testImg = new Image();
+          testImg.onload = function() {
+            self.charDisplay.innerHTML = '';
+            var finalImg = document.createElement('img');
+            finalImg.className = 'char-img';
+            finalImg.src = src;
+            finalImg.alt = charId + ' ' + expr;
+            self.charDisplay.appendChild(finalImg);
+          };
+          testImg.onerror = function() {
+            self.showCharacterFallback(charId);
+          };
+          testImg.src = src;
           return;
         }
       }
