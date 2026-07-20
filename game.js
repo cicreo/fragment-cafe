@@ -1542,6 +1542,162 @@ class BGMManager {
   }
 }
 
+// ===== Sound Effects Manager (Web Audio合成) =====
+class SoundManager {
+  constructor() {
+    this.enabled = true;
+    this.volume = 0.3;
+    this.ctx = null;
+    this.rainNode = null;
+    this.rainGain = null;
+    this.initCtx();
+  }
+
+  initCtx() {
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e) { this.enabled = false; }
+  }
+
+  resume() {
+    if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  }
+
+  // 点击声
+  click() {
+    if (!this.enabled || !this.ctx) return;
+    this.resume();
+    var ctx = this.ctx;
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(800, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(this.volume * 0.5, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.06);
+  }
+
+  // 翻页声
+  pageFlip() {
+    if (!this.enabled || !this.ctx) return;
+    this.resume();
+    var ctx = this.ctx;
+    var bufferSize = ctx.sampleRate * 0.08;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 3);
+    }
+    var source = ctx.createBufferSource();
+    source.buffer = buffer;
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 2000;
+    filter.Q.value = 0.5;
+    var gain = ctx.createGain();
+    gain.gain.setValueAtTime(this.volume * 0.4, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    source.start(ctx.currentTime); source.stop(ctx.currentTime + 0.08);
+  }
+
+  // 咖啡倒水声
+  coffeePour() {
+    if (!this.enabled || !this.ctx) return;
+    this.resume();
+    var ctx = this.ctx;
+    var duration = 0.5;
+    var bufferSize = ctx.sampleRate * duration;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < bufferSize; i++) {
+      var t = i / ctx.sampleRate;
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t / duration, 2) * 0.5;
+    }
+    var source = ctx.createBufferSource();
+    source.buffer = buffer;
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(600, ctx.currentTime);
+    filter.frequency.linearRampToValueAtTime(300, ctx.currentTime + duration);
+    var gain = ctx.createGain();
+    gain.gain.setValueAtTime(this.volume * 0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+    source.start(ctx.currentTime); source.stop(ctx.currentTime + duration);
+  }
+
+  // 成功音效
+  success() {
+    if (!this.enabled || !this.ctx) return;
+    this.resume();
+    var ctx = this.ctx;
+    var notes = [523, 659, 784];
+    notes.forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      var t = ctx.currentTime + i * 0.1;
+      gain.gain.setValueAtTime(this.volume * 0.3, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.2);
+    }.bind(this));
+  }
+
+  // 雨声循环
+  startRain() {
+    if (!this.enabled || !this.ctx || this.rainNode) return;
+    this.resume();
+    var ctx = this.ctx;
+    var bufferSize = ctx.sampleRate * 2;
+    var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.3;
+    }
+    this.rainNode = ctx.createBufferSource();
+    this.rainNode.buffer = buffer;
+    this.rainNode.loop = true;
+    var filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.value = 800;
+    var lowpass = ctx.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 3000;
+    this.rainGain = ctx.createGain();
+    this.rainGain.gain.setValueAtTime(0, ctx.currentTime);
+    this.rainGain.gain.linearRampToValueAtTime(this.volume * 0.12, ctx.currentTime + 0.5);
+    this.rainNode.connect(filter); filter.connect(lowpass); lowpass.connect(this.rainGain); this.rainGain.connect(ctx.destination);
+    this.rainNode.start(ctx.currentTime);
+  }
+
+  stopRain() {
+    if (this.rainGain && this.ctx) {
+      this.rainGain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.4);
+    }
+    if (this.rainNode) {
+      var node = this.rainNode;
+      setTimeout(function() { try { node.stop(); } catch(e) {} }, 500);
+      this.rainNode = null;
+      this.rainGain = null;
+    }
+  }
+
+  setVolume(v) {
+    this.volume = Math.max(0, Math.min(1, v));
+  }
+
+  toggle() {
+    this.enabled = !this.enabled;
+    if (!this.enabled) this.stopRain();
+    return this.enabled;
+  }
+}
+
 // ===== Management Manager =====
 class ManagementManager {
   constructor() {
@@ -1873,6 +2029,7 @@ class SettingsManager {
       skipSpeed: 50,
       effects: true,
       bgmVolume: 35,
+      sfxVolume: 30,
     };
     this.data = this.load();
   }
@@ -2081,8 +2238,8 @@ class UIManager {
 
   setScene(scene) {
     if (scene === this.currentScene) return;
-    // 离开雨景时清理雨滴
-    if (this.currentScene === 'rain') this.clearRain();
+    // 离开雨景时清理雨滴+雨声
+    if (this.currentScene === 'rain') { this.clearRain(); if (game && game.sfx) game.sfx.stopRain(); }
     this.currentScene = scene;
     this.sceneBg.className = '';
     if (USE_IMAGES && IMG.bg[scene]) {
@@ -2091,7 +2248,7 @@ class UIManager {
     switch (scene) {
       case 'cafe': this.sceneBg.className = 'scene-cafe'; break;
       case 'evening': this.sceneBg.className = 'scene-evening'; break;
-      case 'rain': this.sceneBg.className = 'scene-rain'; this.spawnRain(); break;
+      case 'rain': this.sceneBg.className = 'scene-rain'; this.spawnRain(); if (game && game.sfx) game.sfx.startRain(); break;
       default: this.sceneBg.className = 'scene-intro'; break;
     }
     // BGM切换
@@ -2741,6 +2898,7 @@ class Game {
     this.bgm = new BGMManager();
     this.mgmt = new ManagementManager();
     this.tutorial = new TutorialManager();
+    this.sfx = new SoundManager();
     this.init();
   }
 
@@ -2750,7 +2908,7 @@ class Game {
     // Dialogue box click to advance
     document.getElementById('dialogue-box').addEventListener('click', () => {
       if (this.state.isInMenu) return;
-      if (!this.state.isTyping) this.advanceLine();
+      if (!this.state.isTyping) { if (this.sfx) this.sfx.click(); this.advanceLine(); }
     });
 
     // Bottom buttons
@@ -2865,6 +3023,19 @@ class Game {
         settings.set('bgmVolume', parseInt(bgmSlider.value));
       });
     }
+
+    // SFX volume
+    var sfxSlider = document.getElementById('setting-sfx');
+    var sfxVal = document.getElementById('setting-sfx-val');
+    if (sfxSlider && sfxVal) {
+      sfxSlider.value = (this.sfx ? this.sfx.volume * 100 : 30);
+      sfxVal.textContent = Math.round(sfxSlider.value) + '%';
+      sfxSlider.addEventListener('input', () => {
+        sfxVal.textContent = sfxSlider.value + '%';
+        if (this.sfx) this.sfx.setVolume(parseInt(sfxSlider.value) / 100);
+        settings.set('sfxVolume', parseInt(sfxSlider.value));
+      });
+    }
     // Gacha pool buttons
     document.querySelectorAll('#gacha-overlay .gacha-btn[data-pool]').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -2960,6 +3131,7 @@ class Game {
     ui.initBgImages();
     // Init BGM volume
     if (this.bgm) this.bgm.setVolume((settings.get('bgmVolume') || 35) / 100);
+    if (this.sfx) this.sfx.setVolume((settings.get('sfxVolume') || 30) / 100);
 
     // Tutorial - show on first visit
     if (this.tutorial) this.tutorial.start();
@@ -3021,6 +3193,7 @@ class Game {
     }
 
     if (allLinesDone && scene.autoNext) {
+      if (this.sfx) this.sfx.pageFlip();
       var nextScene = scene.autoNext;
       // 结局检测：如果要去 daily_morning 且天数已到
       if (nextScene === 'daily_morning' && this.state.vars.day >= 21) {
@@ -3214,6 +3387,7 @@ class Game {
     if (this.state.isTyping) return;
     this.state.clearAuto();
     this.state.choicesActive = false;
+    if (this.sfx) this.sfx.click();
 
     const choice = this.state.currentChoices[index];
     if (!choice) return;
