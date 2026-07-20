@@ -820,6 +820,150 @@ const STORY = {
       { text: '他说这话的时候没有看你。但他把伞往你这边倾斜了。自己的左肩全湿了。' },
       { text: '你不是刚好路过的。巷子尽头没有别的东西。他是专门来的。' },
     ], autoNext: 'daily_morning' },
+
+    // ==========================================
+    //  结局系统
+    // ==========================================
+    ending_dawn: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '第二十一天。满月之夜后，已经又过了两周。' },
+      { text: '咖啡馆在你的经营下，有了自己的温度。花瓶里的白色小花已经放不下了——陆离把它们分成了三束，摆在不同的角落。' },
+      { text: '今天醒来的时候，你有一种奇怪的感觉。像是有什么事情要结束了。又像是什么要开始了。' },
+      { text: '你翻开前任店主的日记，翻到最后一页。在简笔小花下面，多了一行字——你之前从没注意过：' },
+      { text: '"如果你读到这里，说明你已经在咖啡馆里待了二十一天。足够久了。该做个决定了。"' },
+    ], autoNext: 'ending_evaluate' },
+
+    ending_evaluate: { lines: [
+      { speaker: '系统', text: '【检测到结局分支点。正在评估玩家状态……】' },
+    ], autoNext: 'ending_choose' },
+
+    ending_choose: { lines: [
+      { speaker: '旁白', text: '站在咖啡馆门口，你看着巷子里的晨光。你想起了这三周来的一切——第一个客人、第一杯完美的咖啡、那些在蒸汽中看到的记忆碎片。还有他们三个人。' },
+      { speaker: '旁白', text: '今天之后，很多事情会不一样。' },
+    ], choices: [
+      { text: '【走向陆离】那个一直在暗处守护你的人', next: 'ending_decide_luli' },
+      { text: '【走向明朗】那个让你每天都想笑的人', next: 'ending_decide_ming' },
+      { text: '【走向萧默】那个嘴上嫌弃手里却在帮你的人', next: 'ending_decide_xiao' },
+      { text: '【独自离开】关闭咖啡馆，回到原来的生活', next: 'ending_decide_leave' },
+    ]},
+
+    // ── 决定场景（检测好感度、黑化条件）──
+    ending_decide_luli: { lines: [{ text: '' }], autoNext: 'ending_resolve_luli' },
+    ending_decide_ming: { lines: [{ text: '' }], autoNext: 'ending_resolve_ming' },
+    ending_decide_xiao: { lines: [{ text: '' }], autoNext: 'ending_resolve_xiao' },
+    ending_decide_leave: { lines: [{ text: '' }], autoNext: 'end_alone' },
+
+    // ── 结局判定 ——
+    ending_resolve_luli: { lines: [{ text: '' }], autoNext: 'end_luli_true' },
+    ending_resolve_ming: { lines: [{ text: '' }], autoNext: 'end_ming_true' },
+    ending_resolve_xiao: { lines: [{ text: '' }], autoNext: 'end_xiao_true' },
+
+    // ── 陆离 · 真爱结局 ──
+    end_luli_true: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '【陆离 · 夜色温柔】' },
+      { text: '你走到那个角落的座位。陆离抬起头，灰蓝色的眼睛里映着你的影子。' },
+      { speaker: '陆离', text: '"你决定了？"' },
+      { text: '你点了点头。他沉默了一会儿。然后站起来，从口袋里掏出了一把钥匙——不是咖啡馆的。是他公寓的。' },
+      { speaker: '陆离', text: '"我想了很久。从第一天在路灯下看到你开始。从你发现门口的花开始。从你煮的第一杯咖啡开始。"' },
+      { text: '他把钥匙放在你手心。' },
+      { speaker: '陆离', text: '"咖啡馆是她的。但我是你的。如果你愿意的话。"' },
+      { text: '窗外，天已经亮了。巷子里新的一天刚刚开始。' },
+      { speaker: '旁白', text: '【陆离 True End · 你在哪里，哪里就是归宿】' },
+    ], autoNext: null },
+
+    // ── 明朗 · 真爱结局 ──
+    end_ming_true: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '【明朗 · 晴空万里】' },
+      { speaker: '明朗', text: '"你来找我了！我就知道你会来的！！"' },
+      { text: '他笑得太灿烂了，整个咖啡馆都跟着亮了几分。然后他突然安静下来，认真地看着你。' },
+      { speaker: '明朗', text: '"其实我每天都害怕。怕哪天推开门，你不在吧台后面。怕这封信白寄了。怕我只是一个路过的邻居。"' },
+      { text: '他深吸一口气。' },
+      { speaker: '明朗', text: '"所以——我不想只做邻居了。我想做你每天早上第一个见到的人。每天晚上最后一个说晚安的人。行不行？"' },
+      { text: '阳光正好照在他脸上。他的眼睛在发光。' },
+      { speaker: '旁白', text: '【明朗 True End · 每一天，都想见到你】' },
+    ], autoNext: null },
+
+    // ── 萧默 · 真爱结局 ──
+    end_xiao_true: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '【萧默 · 霜雪初融】' },
+      { speaker: '萧默', text: '"你来了。刚好。我有话要说。"' },
+      { text: '他清了清嗓子。看来排练过很多遍。' },
+      { speaker: '萧默', text: '"我这人不太会说话。但我会做咖啡。以后你想喝什么样的咖啡，我都做给你。每天。随时。一辈子。"' },
+      { text: '他耳朵红了。但还是坚持看着你。' },
+      { speaker: '萧默', text: '"你的咖啡还不够好。但和你喝咖啡的人——我已经决定是我了。不接受反驳。"' },
+      { text: '他从口袋里掏出一张纸——是上次那张配方。背面多了一行字："有效期：永远。"' },
+      { speaker: '旁白', text: '【萧默 True End · 最好的咖啡，是和最喜欢的人一起喝的】' },
+    ], autoNext: null },
+
+    // ── 独行结局 ──
+    end_alone: { lines: [
+      { scene: 'evening', speaker: '旁白', text: '【独行结局 · 风中白花】' },
+      { text: '你收拾好了吧台。在门口挂上了"暂停营业"的牌子。花瓶里的白色小花还在。你把它们带走了——几束小小的、干枯的纪念品。' },
+      { text: '站在巷口回头看。门上"碎片咖啡"的牌子在夕阳中发着光。' },
+      { text: '你不知道会不会回来。但你知道，这家咖啡馆曾经是你生命里很重要的一部分。那些喝过你咖啡的人——他们也会记得的。' },
+      { speaker: '旁白', text: '【End · 有些故事，最好的结局就是被记得】' },
+    ], autoNext: null },
+
+    // ── 黑化结局（选择该角色但完全排他）──
+    dark_luli: { lines: [
+      { scene: 'rain', speaker: '旁白', text: '【陆离 · 永夜】' },
+      { text: '那天晚上，咖啡馆关门后，陆离没有走。他坐在角落里，看着你收拾吧台。' },
+      { speaker: '陆离', text: '"你知道吗。她走的时候，也是这样一个晚上。下雨。她说不回来了。我让她走了。"' },
+      { text: '他站起来。一步一步走到你面前。' },
+      { speaker: '陆离', text: '"但这一次——我不会让你走。你选择了只看着我。那我就让这座城市里，你的世界里，只有我。"' },
+      { text: '他把咖啡馆的门反锁了。钥匙放进了自己的口袋。' },
+      { speaker: '陆离', text: '"外面很冷。里面很暖和。你不需要去别的地方。"' },
+      { speaker: '旁白', text: '【陆离 Dark End · 他的温柔是最紧的牢笼】' },
+    ], autoNext: null },
+
+    dark_ming: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '【明朗 · 溺光】' },
+      { text: '明朗的笑容今天有点不一样。还是那个弧度，但眼里多了一层你从未见过的东西。' },
+      { speaker: '明朗', text: '"你知道吗。我一直很害怕。怕你像她一样突然消失。所以我每天来。每天确认你还在。"' },
+      { text: '他抓住你的手腕。力道比平时大很多。' },
+      { speaker: '明朗', text: '"但光是确认不够。我需要确保你不会走。比如——我把门锁了。窗户也关了。这是为了你好。外面很危险。但在我身边，你是安全的。"' },
+      { text: '他还在笑。但那笑容让咖啡馆比平时亮了很多倍。太亮了。' },
+      { speaker: '旁白', text: '【明朗 Dark End · 太阳离得太近，光芒也会烧伤人】' },
+    ], autoNext: null },
+
+    dark_xiao: { lines: [
+      { scene: 'evening', speaker: '旁白', text: '【萧默 · 冰锁】' },
+      { speaker: '萧默', text: '"我花了很长时间才承认。我不是在教你做咖啡。我是在找一个理由留在你身边。"' },
+      { text: '他靠在吧台边，语气还是那么淡，但手里攥着一张纸——是那张写着"有效期：永远"的配方。攥得很紧，指节发白。' },
+      { speaker: '萧默', text: '"既然你选择了只喝我做的咖啡，那这家店——和你——都是我的了。不要见别人。不要让他们喝你的咖啡。你的咖啡——只能给我。"' },
+      { text: '他把那张配方折好，放进你的围裙口袋里。然后抓住了你的手。' },
+      { speaker: '萧默', text: '"我不像陆离那么温柔，也不像明朗那么会笑。我的方式很简单——你留下来。没有别的选项。"' },
+      { speaker: '旁白', text: '【萧默 Dark End · 最冷的人，有最烫的占有欲】' },
+    ], autoNext: null },
+
+    // ── 强制监禁结局（玩家选择离开但某人好感极高）──
+    dark_luli_force: { lines: [
+      { scene: 'rain', speaker: '旁白', text: '【陆离 · 不散之夜】' },
+      { text: '你在门口被拦住了。不是门——是陆离。他站在门口，挡住了唯一的出路。' },
+      { speaker: '陆离', text: '"你要走。和她说的一样。你们都一样。"' },
+      { text: '他的声音很轻。但每个字都落下来，像雨滴打在玻璃上。' },
+      { speaker: '陆离', text: '"我没有拦住她。我很后悔。所以我不会犯两次同样的错。"' },
+      { text: '他伸出手。不是拉你。是把你身后的门关上了。然后他站在门前，像一堵不会移动的墙。' },
+      { speaker: '陆离', text: '"不走了。外面很冷。你在这里……至少还有我。"' },
+    ], autoNext: null },
+
+    dark_ming_force: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '【明朗 · 锁光】' },
+      { text: '明朗来的时候拿着一个盒子。你说要走，他把盒子放在吧台上。里面是你收到的那封信、咖啡馆的钥匙、还有你第一天来时穿的外套。' },
+      { speaker: '明朗', text: '"你连这些都还没带走。说明你还没真正决定要走。"' },
+      { text: '他往前走了一步。你不是第一次见他笑了。但这一次他的眼睛没有跟着笑。' },
+      { speaker: '明朗', text: '"我每天都在这里。每天都想让你开心。如果你走了，我每天还是会在。但那时候，空荡荡的咖啡馆里只有我一个人。你觉得我会变成什么样？"' },
+      { text: '他把钥匙拿走了。' },
+      { speaker: '明朗', text: '"你不用走。我把钥匙收着。等你想清楚再给你——可能是一天。可能是一辈子。"' },
+    ], autoNext: null },
+
+    dark_xiao_force: { lines: [
+      { scene: 'evening', speaker: '旁白', text: '【萧默 · 霜笼】' },
+      { text: '萧默看着你打包好的行李。沉默了很久。然后他从口袋里拿出一个笔记本——那本写满咖啡配方的本子。翻到最后一页。上面是新写的配方。名字是"不要离开"。' },
+      { speaker: '萧默', text: '"这是我的配方。给你的。只要你不走，我每天都会更新。"' },
+      { text: '他撕下那一页，塞到你手里。然后站在你面前，挡住了通往门口的路。' },
+      { speaker: '萧默', text: '"你是第一个让我想写配方的人。你走了，我的笔记本就没有下一页了。所以你留下。"' },
+      { text: '不是请求。不是商量。是他已经决定好的结论。' },
+    ], autoNext: null },
   }
 };
 
@@ -2113,7 +2257,34 @@ class Game {
     }
 
     if (allLinesDone && scene.autoNext) {
-      this.state.enterScene(scene.autoNext);
+      var nextScene = scene.autoNext;
+      // 结局检测：如果要去 daily_morning 且天数已到
+      if (nextScene === 'daily_morning' && this.state.vars.day >= 21) {
+        nextScene = 'ending_dawn';
+      }
+      // 黑化检测：尊重玩家选择但高好感+低选择触发黑化
+      if (nextScene === 'ending_resolve_luli' && this.state.vars.lu_li_aff >= 80) {
+        if (this.state.vars.ming_lang_aff < 30 && this.state.vars.xiao_mo_aff < 30) {
+          nextScene = 'dark_luli';
+        }
+      }
+      if (nextScene === 'ending_resolve_ming' && this.state.vars.ming_lang_aff >= 80) {
+        if (this.state.vars.lu_li_aff < 30 && this.state.vars.xiao_mo_aff < 30) {
+          nextScene = 'dark_ming';
+        }
+      }
+      if (nextScene === 'ending_resolve_xiao' && this.state.vars.xiao_mo_aff >= 80) {
+        if (this.state.vars.lu_li_aff < 30 && this.state.vars.ming_lang_aff < 30) {
+          nextScene = 'dark_xiao';
+        }
+      }
+      // 如果选择离开但某人好感极高 → 黑化监禁
+      if (nextScene === 'end_alone') {
+        if (this.state.vars.lu_li_aff >= 80) nextScene = 'dark_luli_force';
+        else if (this.state.vars.ming_lang_aff >= 80) nextScene = 'dark_ming_force';
+        else if (this.state.vars.xiao_mo_aff >= 80) nextScene = 'dark_xiao_force';
+      }
+      this.state.enterScene(nextScene);
       this.advanceLine();
       return;
     }
