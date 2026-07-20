@@ -180,6 +180,23 @@
   </div>
 </div>
 
+<!-- ====== 来电界面 ====== -->
+<div id="phone-overlay" class="overlay hidden">
+  <div class="modal phone-modal">
+    <div class="phone-ring-icon">📞</div>
+    <div class="modal-title" id="phone-title">来电中……</div>
+    <div class="phone-caller" id="phone-caller"></div>
+    <div class="phone-transcript" id="phone-transcript"></div>
+    <div class="phone-buttons">
+      <button class="modal-btn phone-accept" id="phone-accept">📞 接听</button>
+      <button class="modal-btn modal-btn-danger" id="phone-decline">✕ 挂断</button>
+    </div>
+    <div class="phone-progress" id="phone-progress" style="display:none">
+      <div class="phone-progress-bar" id="phone-progress-bar"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ====== CG画廊 ====== -->
 <div id="gallery-overlay" class="overlay hidden">
   <div class="modal modal-wide">

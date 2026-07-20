@@ -1377,6 +1377,20 @@ const CG_CONFIG = [
   { id: 'cg_player_back',      name: '围裙背影',        char: 'all',   unlock: 'ending', trigger: 'end_luli_true' },
 ];
 
+// ===== Phone Call Config =====
+// 生成好音频文件放入 assets/audio/ 即可
+const PHONE_CALLS = [
+  { id: 'xiao_call_1', char: 'xiaomo', speaker: '萧默', affection: 40, file: 'assets/audio/xiao_phone_01.mp3',
+    transcript: '喂？是我。萧默。刚做完一杯新的咖啡配方，第一个就想到你了。你什么时候过来？不，我不是在催你，只是咖啡凉了就没那么好喝了。行。我等你。别太久。',
+    affBonus: 3 },
+  { id: 'xiao_call_2', char: 'xiaomo', speaker: '萧默', affection: 65, file: 'assets/audio/xiao_phone_full.mp3',
+    transcript: '喂？是我。萧默。这么晚打来……我不是在忙。刚好调完一杯新的豆子拼配。你上次说喜欢偏酸的，我又改了比例。你什么时候过来试试？明天？行，我记着。对了……你上次说想学怎么判断水温——明天我可以教你。不是免费的。得请我喝你做的咖啡当学费。就这样。挂了。嗯……晚安。',
+    affBonus: 5 },
+  // 陆离和明朗的电话：等你有 audio 文件后取消注释即可
+  // { id: 'luli_call_1', char: 'luli', speaker: '陆离', affection: 40, file: 'assets/audio/luli_phone_01.mp3', transcript: '...', affBonus: 3 },
+  // { id: 'ming_call_1', char: 'minglang', speaker: '明朗', affection: 40, file: 'assets/audio/ming_phone_01.mp3', transcript: '...', affBonus: 3 },
+];
+
 // ===== Gacha Manager =====
 class GachaManager {
   constructor() {
@@ -1732,6 +1746,14 @@ class UIManager {
     this.shopOverlay    = document.getElementById('shop-overlay');
     this.shopList       = document.getElementById('shop-list');
     this.galleryOverlay = document.getElementById('gallery-overlay');
+    this.phoneOverlay   = document.getElementById('phone-overlay');
+    this.phoneTitle     = document.getElementById('phone-title');
+    this.phoneCaller    = document.getElementById('phone-caller');
+    this.phoneTranscript = document.getElementById('phone-transcript');
+    this.phoneProgress  = document.getElementById('phone-progress');
+    this.phoneProgressBar = document.getElementById('phone-progress-bar');
+    this.phoneAccept    = document.getElementById('phone-accept');
+    this.phoneDecline   = document.getElementById('phone-decline');
     this.saveSlots      = document.getElementById('save-slots');
     this.saveTitle      = document.getElementById('save-title');
     this.logList        = document.getElementById('log-list');
@@ -2005,7 +2027,8 @@ class UIManager {
            !this.logOverlay.classList.contains('hidden') ||
            !this.gachaOverlay.classList.contains('hidden') ||
            !this.shopOverlay.classList.contains('hidden') ||
-           !this.galleryOverlay.classList.contains('hidden');
+           !this.galleryOverlay.classList.contains('hidden') ||
+           !this.phoneOverlay.classList.contains('hidden');
   }
 
   closeAllOverlays() {
@@ -2016,6 +2039,7 @@ class UIManager {
     this.gachaOverlay.classList.add('hidden');
     this.shopOverlay.classList.add('hidden');
     this.galleryOverlay.classList.add('hidden');
+    this.phoneOverlay.classList.add('hidden');
   }
 
   // ── 扭蛋 ──
@@ -2268,6 +2292,12 @@ class Game {
     if (sb) sb.addEventListener('click', () => { ui.closeShop(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
     var galb = document.getElementById('gallery-back');
     if (galb) galb.addEventListener('click', () => { ui.closeGallery(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+
+    // Phone buttons
+    var pa = document.getElementById('phone-accept');
+    if (pa) pa.addEventListener('click', () => { this.answerPhone(); });
+    var pd = document.getElementById('phone-decline');
+    if (pd) pd.addEventListener('click', () => { this.declinePhone(); });
     // Gacha pool buttons
     document.querySelectorAll('#gacha-overlay .gacha-btn[data-pool]').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -2423,6 +2453,10 @@ class Game {
       // 结局检测：如果要去 daily_morning 且天数已到
       if (nextScene === 'daily_morning' && this.state.vars.day >= 21) {
         nextScene = 'ending_dawn';
+      }
+      // 来电检测：进入日常早晨时检查
+      if (nextScene === 'daily_morning') {
+        this.checkPhoneCalls();
       }
       // 黑化检测：尊重玩家选择但高好感+低选择触发黑化
       if (nextScene === 'ending_resolve_luli' && this.state.vars.lu_li_aff >= 80) {
@@ -2680,6 +2714,102 @@ class Game {
       this.state.enterScene(scene.autoNext);
       this.advanceLine();
     }
+  }
+
+  // ── Phone Call ──
+  checkPhoneCalls() {
+    var self = this;
+    var received = JSON.parse(localStorage.getItem('fragment_cafe_calls') || '[]');
+    PHONE_CALLS.forEach(function(call) {
+      if (received.includes(call.id)) return;
+      var affKey = call.char === 'luli' ? 'lu_li_aff' : (call.char === 'minglang' ? 'ming_lang_aff' : 'xiao_mo_aff');
+      if ((self.state.vars[affKey] || 0) >= call.affection) {
+        self.showPhoneCall(call);
+        return; // Only show one per check
+      }
+    });
+  }
+
+  showPhoneCall(call) {
+    this.state.isInMenu = true;
+    ui.phoneCaller.textContent = call.speaker;
+    ui.phoneTitle.textContent = '📞 来电中……';
+    ui.phoneTranscript.style.display = 'none';
+    ui.phoneProgress.style.display = 'none';
+    document.getElementById('phone-accept').style.display = '';
+    document.getElementById('phone-decline').style.display = '';
+    ui.phoneOverlay.classList.remove('hidden');
+
+    // Store current call
+    this.state.currentPhoneCall = call;
+    // Ringing animation
+    this.phoneRingInterval = setInterval(function() {
+      var icon = document.querySelector('.phone-ring-icon');
+      if (icon) icon.style.visibility = (icon.style.visibility === 'hidden' ? '' : 'hidden');
+    }, 500);
+  }
+
+  answerPhone() {
+    if (this.phoneRingInterval) clearInterval(this.phoneRingInterval);
+    var call = this.state.currentPhoneCall;
+    if (!call) return;
+    ui.phoneTitle.textContent = '通话中……';
+    document.getElementById('phone-accept').style.display = 'none';
+    document.getElementById('phone-decline').style.display = 'none';
+
+    // Play audio
+    var audio = new Audio(call.file);
+    audio.play();
+
+    // Mark call as received
+    var received = JSON.parse(localStorage.getItem('fragment_cafe_calls') || '[]');
+    received.push(call.id);
+    localStorage.setItem('fragment_cafe_calls', JSON.stringify(received));
+
+    // Affection bonus
+    var affKey = call.char === 'luli' ? 'lu_li_aff' : (call.char === 'minglang' ? 'ming_lang_aff' : 'xiao_mo_aff');
+    this.state.vars[affKey] = (this.state.vars[affKey] || 0) + (call.affBonus || 3);
+    ui.syncAll(this.state.vars);
+
+    // Show progress bar
+    ui.phoneProgress.style.display = 'block';
+    ui.phoneProgressBar.style.width = '0%';
+    var self = this;
+    audio.ontimeupdate = function() {
+      if (audio.duration) {
+        ui.phoneProgressBar.style.width = (audio.currentTime / audio.duration * 100) + '%';
+      }
+    };
+    audio.onended = function() {
+      ui.phoneTitle.textContent = '通话结束';
+      ui.phoneProgress.style.display = 'none';
+      ui.phoneTranscript.textContent = call.transcript;
+      ui.phoneTranscript.style.display = 'block';
+      // Add close button after call ends
+      setTimeout(function() {
+        self.state.isInMenu = false;
+        ui.phoneOverlay.classList.add('hidden');
+        ui.showToast('💬 ' + call.speaker + ' 好感 +' + call.affBonus);
+      }, 3000);
+    };
+    audio.onerror = function() {
+      // Audio file not found - show transcript only
+      ui.phoneTitle.textContent = '通话结束';
+      ui.phoneTranscript.textContent = call.transcript;
+      ui.phoneTranscript.style.display = 'block';
+      setTimeout(function() {
+        self.state.isInMenu = false;
+        ui.phoneOverlay.classList.add('hidden');
+        ui.showToast('💬 ' + call.speaker + ' 好感 +' + call.affBonus);
+      }, 3000);
+    };
+  }
+
+  declinePhone() {
+    if (this.phoneRingInterval) clearInterval(this.phoneRingInterval);
+    ui.phoneOverlay.classList.add('hidden');
+    this.state.isInMenu = false;
+    this.meta.resetIdle();
   }
 
   // ── Gacha ──
