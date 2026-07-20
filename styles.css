@@ -579,6 +579,48 @@ html, body {
   padding: 8px 12px;
 }
 
+/* Gacha & Shop buttons */
+.gacha-btn {
+  border-color: #5533aa;
+  color: #bbaadd;
+  background: #1a1030;
+}
+.gacha-btn:hover {
+  border-color: #9977dd;
+  background: #221840;
+  box-shadow: 0 0 16px rgba(153,119,221,0.3);
+}
+.shop-btn {
+  border-color: #337744;
+  color: #aacccc;
+  background: #101a15;
+}
+.shop-btn:hover {
+  border-color: #55aa77;
+  background: #182820;
+}
+
+/* Shop list */
+.shop-item {
+  background: #141428;
+  border: 1px solid #1a2a1a;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.shop-item .shop-name { font-family: var(--font-title); font-size: 14px; color: var(--accent-bright); }
+.shop-item .shop-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.shop-item .shop-cost { font-family: var(--font-pixel); font-size: 9px; color: var(--money); white-space: nowrap; margin-left: 8px; }
+.shop-item button {
+  font-size: 11px; padding: 4px 10px; cursor: pointer;
+  background: #1a2a1a; color: #aacccc; border: 1px solid #337744;
+  white-space: nowrap;
+}
+.shop-item button:hover { background: #223322; border-color: #55aa77; }
+.shop-item button.owned { background: #222; color: #555; border-color: #333; cursor: default; }
+
 .modal-btns {
   margin-top: 16px;
 }

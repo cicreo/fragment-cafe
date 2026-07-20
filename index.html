@@ -96,6 +96,8 @@
     <button class="modal-btn" id="pause-save">保存存档</button>
     <button class="modal-btn" id="pause-load">读取存档</button>
     <button class="modal-btn" id="pause-settings">系统设置</button>
+    <button class="modal-btn gacha-btn" id="pause-gacha">🔮 扭蛋抽签</button>
+    <button class="modal-btn shop-btn" id="pause-shop">🛒 设备商店</button>
     <button class="modal-btn modal-btn-danger" id="pause-exit">返回标题</button>
   </div>
 </div>
@@ -156,6 +158,31 @@
 
 <!-- ====== 角色画面点击提示 ====== -->
 <div id="char-touch-indicator" class="hidden"></div>
+
+<!-- ====== 扭蛋抽签 ====== -->
+<div id="gacha-overlay" class="overlay hidden">
+  <div class="modal">
+    <div class="modal-title">🔮 扭蛋抽签</div>
+    <div style="text-align:center;color:var(--text-dim);margin-bottom:12px;font-size:13px;">200💰 抽一次，获得专属剧情+好感度！</div>
+    <button class="modal-btn gacha-btn" data-pool="luli">🌙 陆离 · 夜色签</button>
+    <button class="modal-btn gacha-btn" data-pool="minglang">☀️ 明朗 · 晴空签</button>
+    <button class="modal-btn gacha-btn" data-pool="xiaomo">❄️ 萧默 · 霜雪签</button>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-sm" id="gacha-back">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 设备商店 ====== -->
+<div id="shop-overlay" class="overlay hidden">
+  <div class="modal modal-wide">
+    <div class="modal-title">🛒 设备商店</div>
+    <div id="shop-list"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-sm" id="shop-back">返回</button>
+    </div>
+  </div>
+</div>
 
 <script>
 (function(){

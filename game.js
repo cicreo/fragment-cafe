@@ -577,7 +577,249 @@ const STORY = {
       { text: '' },
       { text: '——' },
       { text: '剧透：第二周将带来——更多日常经营选择、角色专属事件、以及隐藏的日记后续……' },
-    ], autoNext: null },
+    ], autoNext: 'daily_morning' },
+
+    // ==========================================
+    //  日常经营循环
+    // ==========================================
+    daily_morning: { onEnter: { day: 1 }, lines: [
+      { scene: 'cafe', speaker: '旁白', text: '新的一天。阳光照进咖啡馆。花瓶里的白色小花又换了一束新的——虽然你从没看见是谁放的。' },
+    ], choices: [
+      { text: '【研究新品】尝试新的咖啡配方 (品质↑ 花钱↓)', effects: { money: -30 }, next: 'daily_act_research' },
+      { text: '【采购食材】去市场挑新鲜的豆子 (品质↑↑ 花钱↓↓)', effects: { money: -60 }, next: 'daily_act_shop' },
+      { text: '【打扫装饰】整理店面提升氛围 (口碑↑)', next: 'daily_act_clean' },
+      { text: '【出门宣传】在巷口发传单揽客 (口碑↑↑ 花钱↓)', effects: { money: -20 }, next: 'daily_act_promo' },
+      { text: '【佛系摸鱼】什么都不做，享受早晨', next: 'daily_act_rest' },
+    ]},
+
+    daily_act_research: { lines: [
+      { text: '你翻出前任店主留下的笔记本，里面记满了各种咖啡配方和手写笔记。你试着按照其中一个配方，混合了两种豆子。味道出奇地好。' },
+      { text: '【咖啡品质提升了】' },
+    ], autoNext: 'daily_choose_character' },
+
+    daily_act_shop: { lines: [
+      { text: '你起了个大早去市场。卖豆子的老伯已经认识你了，给你留了一袋他私藏的单品豆。"小姑娘，这可是好东西，别人我不给。"' },
+      { text: '【咖啡品质大幅提升】' },
+    ], autoNext: 'daily_choose_character' },
+
+    daily_act_clean: { lines: [
+      { text: '你把书架重新整理了一遍，擦拭了窗台，给门口的花草浇了水。巷子里路过的人开始驻足往里看。' },
+      { text: '【店铺口碑提升】' },
+    ], autoNext: 'daily_choose_character' },
+
+    daily_act_promo: { lines: [
+      { text: '你印了一叠简单的手写传单，站在巷口分发给路人。不少人被你的笑容吸引，答应今天来坐坐。' },
+      { text: '【店铺口碑提升】' },
+    ], autoNext: 'daily_choose_character' },
+
+    daily_act_rest: { lines: [
+      { text: '你给自己泡了一杯咖啡，坐在窗边看着巷子慢慢醒来。有时候，什么都不做也是一种经营。' },
+    ], autoNext: 'daily_choose_character' },
+
+    daily_choose_character: { lines: [
+      { scene: 'cafe', speaker: '旁白', text: '上午的阳光正好。今天你想见到谁？' },
+    ], choices: [
+      { text: '期待见到陆离', next: 'daily_meet_luli' },
+      { text: '期待见到明朗', next: 'daily_meet_ming' },
+      { text: '期待见到萧默', next: 'daily_meet_xiao' },
+      { text: '顺其自然……', next: 'daily_random' },
+    ]},
+
+    // ── 陆离日常 ──
+    daily_meet_luli: { lines: [
+      { scene: 'cafe', text: '上午。陆离推门进来。他今天穿了一件深灰色的衬衫，头发似乎剪短了一点。' },
+      { speaker: '陆离', text: '"早。今天的水温……比昨天高了半度。但咖啡很香。"' },
+      { text: '他在老位置上坐下。你已经不用问他喝什么了——黑咖啡，不加糖。' },
+    ], choices: [
+      { text: '"你今天看起来气色不错。"', effects: { lu_li_aff: 2 }, next: 'daily_luli_talk' },
+      { text: '"你每天都来……这里对你来说是什么？"', effects: { lu_li_aff: 3 }, next: 'daily_luli_deep' },
+      { text: '什么都不说，安静地陪他坐着。', effects: { lu_li_aff: 2 }, next: 'daily_luli_silent' },
+    ]},
+    daily_luli_talk: { lines: [
+      { speaker: '陆离', text: '"……是吗。你也一样。"' },
+      { text: '他低头喝了一口咖啡。杯沿后面，嘴角似乎弯了一下。' },
+    ], autoNext: 'daily_random_event' },
+    daily_luli_deep: { lines: [
+      { speaker: '陆离', text: '"这里……像一座桥。连接着很多已经走远的人。也包括我。"' },
+      { text: '他顿了顿。' },
+      { speaker: '陆离', text: '"但现在，我过桥不是为了回去。是为了来这边。来你这里。"' },
+    ], autoNext: 'daily_random_event' },
+    daily_luli_silent: { lines: [
+      { text: '你们安静地坐着。阳光从窗户照进来，落在他肩膀上。他看了你一眼，然后移开了。但只是假装在看窗外。' },
+    ], autoNext: 'daily_random_event' },
+
+    // ── 明朗日常 ──
+    daily_meet_ming: { lines: [
+      { scene: 'cafe', text: '明朗是跑着来的。推门的时候风铃响得格外欢快。' },
+      { speaker: '明朗', text: '"早——！今天天气超好，适合喝一杯你煮的咖啡！"' },
+      { text: '他永远是最有活力的那个。即使什么都没发生，他的笑容也能让咖啡馆亮堂三分。' },
+    ], choices: [
+      { text: '"今天想喝什么？给你特调一杯。"', effects: { ming_lang_aff: 3 }, next: 'daily_ming_talk' },
+      { text: '"你怎么每天都这么开心啊。"', effects: { ming_lang_aff: 2 }, next: 'daily_ming_happy' },
+    ]},
+    daily_ming_talk: { lines: [
+      { speaker: '明朗', text: '"真的吗？特调！！我要喝你最新研发的那种！！"' },
+      { text: '你花了几分钟调了一杯新配方。他喝了一口，眼睛亮得像星星。' },
+      { speaker: '明朗', text: '"……超级好喝。你真的越来越厉害了。"' },
+    ], autoNext: 'daily_random_event' },
+    daily_ming_happy: { lines: [
+      { speaker: '明朗', text: '"因为每天都能见到你啊。这个理由还不够吗？"' },
+      { text: '他说得很自然，像是陈述一个再明显不过的事实。' },
+    ], autoNext: 'daily_random_event' },
+
+    // ── 萧默日常 ──
+    daily_meet_xiao: { lines: [
+      { scene: 'cafe', text: '萧默推门进来的时候，手里拿着一个笔记本。他每次来都会带一个新本子，写满了咖啡笔记。' },
+      { speaker: '萧默', text: '"今天我要试一个新配方。你来做，我验收。"' },
+      { text: '他把本子翻到某一页，上面密密麻麻写满了参数。水温、研磨度、萃取时间……精确到小数点。' },
+    ], choices: [
+      { text: '"你还真是严格啊。"微笑着照做。', effects: { xiao_mo_aff: 2 }, next: 'daily_xiao_talk' },
+      { text: '"你先做一杯示范给我看。"', effects: { xiao_mo_aff: 3 }, next: 'daily_xiao_demo' },
+    ]},
+    daily_xiao_talk: { lines: [
+      { speaker: '萧默', text: '"严格是因为你在进步。如果我放水，你不会变得更好。"' },
+      { text: '他看了一遍你做咖啡的流程，在笔记本上又写了几个字。' },
+      { speaker: '萧默', text: '"快了。再练几天就能稳定出杯了。"' },
+      { text: '"快了"是他能给的最高评价。' },
+    ], autoNext: 'daily_random_event' },
+    daily_xiao_demo: { lines: [
+      { speaker: '萧默', text: '"……好。看仔细了。"' },
+      { text: '他走到吧台后面。每一个动作都精准如手术。最后他把咖啡推到你面前。' },
+      { speaker: '萧默', text: '"尝尝。然后告诉我你学到了什么。"' },
+      { text: '你喝了一口。然后你明白了他为什么每天带一个新的笔记本。' },
+    ], autoNext: 'daily_random_event' },
+
+    // ── 随机日 ──
+    daily_random: { lines: [
+      { scene: 'cafe', text: '你没有特别期待谁。就这样安静地站在吧台后面，等着这一天自然展开。有时候最好的相遇不是约好的，是刚好赶上的。' },
+    ], autoNext: 'daily_random_event' },
+
+    // ── 随机事件池 ──
+    daily_random_event: { lines: [ { text: '' } ], choices: [
+      { text: '【客人故事】一位老爷爷来了，点了一杯咖啡。', next: 'daily_event_oldman' },
+      { text: '【意外来客】巷子里的流浪猫跑进来了。', next: 'daily_event_cat' },
+      { text: '【雨天插曲】突然下雨了，有人进来躲雨。', next: 'daily_event_rain' },
+      { text: '【美食评论】神秘美食博主光临。', next: 'daily_event_blogger' },
+      { text: '【三人修罗】明朗和萧默同时来了。', next: 'daily_event_trio' },
+      { text: '【安静午后】没有什么特别的事发生。', next: 'daily_evening_wrap' },
+    ]},
+
+    daily_event_oldman: { lines: [
+      { scene: 'cafe', text: '一位白发老爷爷拄着拐杖走进来。他在靠窗的位置坐了很久，喝了两杯咖啡。临走时他说——' },
+      { speaker: '老人', text: '"我以前和她来过这里。那时候你们还没开。但这家店的气息，一直没变过。"' },
+      { text: '他放了比咖啡价格多三倍的钱在桌上，走了。' },
+    ], autoNext: 'daily_evening_wrap' },
+
+    daily_event_cat: { lines: [
+      { scene: 'cafe', text: '一只黑白相间的流浪猫从门缝里溜了进来。它径直跳上角落里陆离惯常坐的椅子，蜷成一团睡觉。' },
+      { text: '你没有赶它走。给它倒了一小碟牛奶。它抬头看了你一眼，好像在说"这还差不多"。' },
+      { text: '下午，一位路过的女士看到猫，进来坐了坐。点了拿铁和蛋糕。' },
+    ], autoNext: 'daily_evening_wrap' },
+
+    daily_event_rain: { lines: [
+      { scene: 'rain', text: '下午突然下起了大雨。巷子里几个路人跑进来躲雨，把你的咖啡馆挤得满满当当。' },
+      { text: '你趁着人多，给大家做了几杯热咖啡。雨停后，一个新顾客说以后会常来。' },
+    ], autoNext: 'daily_evening_wrap' },
+
+    daily_event_blogger: { lines: [
+      { scene: 'cafe', text: '一个背着相机的人走进来，拍了很久的照。然后点了一杯手冲。喝了一口，表情很复杂。' },
+      { speaker: '博主', text: '"这个咖啡……我在别的地方没喝过这样的味道。有一种……怎么说呢，像是故事的味道。"' },
+      { text: '他在网上写了一篇长篇好评。配图里，你的咖啡馆在阳光下发光。' },
+    ], autoNext: 'daily_evening_wrap' },
+
+    daily_event_trio: { lines: [
+      { scene: 'cafe', text: '明朗和萧默几乎同时推门进来。两个人在门口互看了一眼，微妙地停滞了一秒。' },
+      { speaker: '明朗', text: '"啊，萧默也来了！好巧哦！"' },
+      { speaker: '萧默', text: '"……不巧。我每天都来。"' },
+      { text: '他们各自坐到惯常的位置上。你忙着给两人准备咖啡，觉得这个午后格外热闹。' },
+      { text: '角落里——不知什么时候，陆离也来了。他对你微微点头，仿佛在说"不用在意我"。' },
+      { text: '但你当然在意。' },
+    ], autoNext: 'daily_evening_wrap' },
+
+    // ── 每日结算 ──
+    daily_evening_wrap: { lines: [
+      { scene: 'evening', text: '傍晚。你收拾了吧台，数了数今天的收入。' },
+      { speaker: '旁白', text: '又是平凡而珍贵的一天。明天，还会有人带着他们的故事来喝你的咖啡。' },
+    ], autoNext: 'daily_morning' },
+
+    // ── 扭蛋场景（陆离）──
+    gacha_luli_1: { lines: [
+      { scene: 'rain', text: '【扭蛋·陆离】你打开签文。纸上只有一行字：' },
+      { text: '"今晚十点，咖啡馆门口。"' },
+      { text: '你等到十点。陆离准时出现，手里拿着一把伞——虽然今晚没有下雨。' },
+      { speaker: '陆离', text: '"给你。以防万一。还有——这个。"' },
+      { text: '他从口袋里掏出一颗咖啡豆。小小的，褐色的。' },
+      { speaker: '陆离', text: '"是她留下的最后一颗豆子。她说，种下去会开花。我没有花园。你这里有。"' },
+    ], autoNext: 'daily_morning' },
+
+    gacha_luli_2: { lines: [
+      { scene: 'cafe', text: '【扭蛋·陆离】签文上写着："他会告诉你一个秘密。"' },
+      { speaker: '陆离', text: '"我其实不喜欢喝咖啡。"' },
+      { text: '你愣住了。他每天来，每天喝，每次都喝完。' },
+      { speaker: '陆离', text: '"但你喜欢煮。所以我喝了。"' },
+      { text: '他说完就站起来走了。耳尖有一点很淡的红色。' },
+    ], autoNext: 'daily_morning' },
+
+    gacha_luli_3: { lines: [
+      { scene: 'evening', text: '【扭蛋·陆离】签文是一朵简笔画的小花。和日记最后一页画的一模一样。' },
+      { text: '晚上他来了。在门口站了很久。' },
+      { speaker: '陆离', text: '"她画这朵花的时候，我就在旁边。她说，花是会开的。只要有人记得浇水。"' },
+      { text: '他把一包新的咖啡豆放在吧台上。' },
+      { speaker: '陆离', text: '"这是新的种子。你来浇水。"' },
+    ], autoNext: 'daily_morning' },
+
+    // ── 扭蛋场景（明朗）──
+    gacha_ming_1: { lines: [
+      { scene: 'cafe', text: '【扭蛋·明朗】签文上画了一个笑脸。还有一行歪歪扭扭的字：' },
+      { text: '"今天我是你的专属咖啡师！"' },
+      { speaker: '明朗', text: '"嘿嘿，抽到了对吧！我特意放进去的——不是啦开玩笑的，但真的被你抽到了好开心！"' },
+      { text: '他系上围裙，站在吧台后面，有模有样地给你做了一杯咖啡。虽然奶泡的形状完全不像他说的"天鹅"，更像"一朵云"。' },
+      { speaker: '明朗', text: '"怎么样？好喝吗？"' },
+      { text: '好喝。不是因为咖啡。是因为他做的时候一直在笑。' },
+    ], autoNext: 'daily_morning' },
+
+    gacha_ming_2: { lines: [
+      { scene: 'evening', text: '【扭蛋·明朗】签文："他会唱一首歌给你听。"' },
+      { text: '傍晚，明朗抱着一把旧吉他来了。说是借隔壁阿婆的。' },
+      { speaker: '明朗', text: '"我不太会弹，但我会唱。这首歌……是写给你的。不准说不好听。"' },
+      { text: '他唱了。旋律很简单，歌词也很简单，翻来覆去就是"你好啊""咖啡很好喝""明天还想见到你"。' },
+      { text: '但你听完了整首。并且让他又唱了一遍。' },
+    ], autoNext: 'daily_morning' },
+
+    gacha_ming_3: { lines: [
+      { scene: 'cafe', text: '【扭蛋·明朗】签文只写了两个字："屋顶。"' },
+      { text: '明朗拉着你爬上咖啡馆的屋顶——从后门的梯子上去。上面摆了一盏小灯和两杯热巧克力。' },
+      { speaker: '明朗', text: '"我昨天偷偷布置的。就想着万一你抽到这张签……你看，真的抽到了。"' },
+      { text: '你们坐在屋顶上，看着巷子里的灯火一一亮起。星星不多，但他指给你看的那颗特别亮。' },
+      { speaker: '明朗', text: '"那是我最喜欢的星星。现在你也看到了。"' },
+    ], autoNext: 'daily_morning' },
+
+    // ── 扭蛋场景（萧默）──
+    gacha_xiao_1: { lines: [
+      { scene: 'cafe', text: '【扭蛋·萧默】签文是一行打印体——是的，他打印的：' },
+      { text: '"恭喜你获得了萧默老师的一对一咖啡私教课。"' },
+      { speaker: '萧默', text: '"别笑。很值的好吗。别人花钱请我我都不去。"' },
+      { text: '他真的花了一整个下午教你。从豆子品种讲到水质酸碱度，讲到后面他自己都忘了时间。你注意到他讲咖啡的时候，眼睛里有光。' },
+      { speaker: '萧默', text: '"……你刚才那个手法，已经可以做我的助手了。"' },
+      { text: '"助手"是他能说出口的最高夸奖。' },
+    ], autoNext: 'daily_morning' },
+
+    gacha_xiao_2: { lines: [
+      { scene: 'evening', text: '【扭蛋·萧默】签文是一张手写的配方，字迹极其工整。配方名字叫——' },
+      { text: '"给特别的店主的特别配方。"' },
+      { speaker: '萧默', text: '"……名字是随便写的。配方是认真的。你试试。"' },
+      { text: '你按照他的配方做了一杯。他尝了一口，点了好几次头。然后他做了一件你从没见他做过的事——他把配方折好，放在你的围裙口袋里。' },
+      { speaker: '萧默', text: '"留着吧。以后有人问你怎么做出好咖啡，你可以说——跟最好的师傅学的。"' },
+    ], autoNext: 'daily_morning' },
+
+    gacha_xiao_3: { lines: [
+      { scene: 'rain', text: '【扭蛋·萧默】签文只有两个字："来接你。"' },
+      { text: '那天下大雨。你没有带伞。站在咖啡馆门口犹豫着要不要冲出去。' },
+      { text: '然后你看到巷子尽头，一个人撑着伞走过来。深蓝外套，步子不快。' },
+      { speaker: '萧默', text: '"看什么。我刚好路过。"' },
+      { text: '他说这话的时候没有看你。但他把伞往你这边倾斜了。自己的左肩全湿了。' },
+      { text: '你不是刚好路过的。巷子尽头没有别的东西。他是专门来的。' },
+    ], autoNext: 'daily_morning' },
   }
 };
 
@@ -932,6 +1174,94 @@ const META_REACTIONS = {
   },
 };
 
+// ===== 扭蛋配置 =====
+const GACHA_CONFIG = {
+  cost: 200,
+  pools: {
+    luli: {
+      name: '陆离·夜色签',
+      scenes: ['gacha_luli_1', 'gacha_luli_2', 'gacha_luli_3'],
+      affBonus: [5, 8, 12],
+    },
+    minglang: {
+      name: '明朗·晴空签',
+      scenes: ['gacha_ming_1', 'gacha_ming_2', 'gacha_ming_3'],
+      affBonus: [5, 8, 12],
+    },
+    xiaomo: {
+      name: '萧默·霜雪签',
+      scenes: ['gacha_xiao_1', 'gacha_xiao_2', 'gacha_xiao_3'],
+      affBonus: [5, 8, 12],
+    },
+  },
+};
+
+// ===== 设备商店配置 =====
+const EQUIPMENT_SHOP = [
+  { id: 'eq1', name: '手摇磨豆机', desc: '入门级，但比砍豆机强多了。', cost: 100, effect: { quality: 5 } },
+  { id: 'eq2', name: '温控手冲壶', desc: '能精确控温，再也不会烫坏豆子。', cost: 200, effect: { quality: 8 } },
+  { id: 'eq3', name: '意式咖啡机', desc: '二手但保养得很好。能做拿铁了！', cost: 500, effect: { quality: 15, reputation: 3 } },
+  { id: 'eq4', name: '复古唱片机', desc: '放在角落，放黑胶唱片。氛围拉满。', cost: 300, effect: { reputation: 10 } },
+  { id: 'eq5', name: '专业烘焙机', desc: '可以自己烘焙生豆了。咖啡师的终极玩具。', cost: 1000, effect: { quality: 25, reputation: 10 } },
+];
+
+// ===== Gacha Manager =====
+class GachaManager {
+  constructor() {
+    this.history = [];
+  }
+
+  draw(poolId) {
+    const pool = GACHA_CONFIG.pools[poolId];
+    if (!pool) return null;
+    const idx = Math.floor(Math.random() * pool.scenes.length);
+    return {
+      poolId: poolId,
+      sceneId: pool.scenes[idx],
+      affBonus: pool.affBonus[idx],
+      name: pool.name,
+    };
+  }
+
+  addHistory(result) {
+    this.history.push({ ...result, time: Date.now() });
+  }
+}
+
+// ===== Equipment Manager =====
+class EquipmentManager {
+  constructor() {
+    this.owned = []; // IDs of purchased equipment
+  }
+
+  purchase(itemId) {
+    if (this.owned.includes(itemId)) return null;
+    const item = EQUIPMENT_SHOP.find(e => e.id === itemId);
+    if (!item) return null;
+    this.owned.push(itemId);
+    return item;
+  }
+
+  getEffects() {
+    let quality = 0, reputation = 0;
+    for (const id of this.owned) {
+      const item = EQUIPMENT_SHOP.find(e => e.id === id);
+      if (!item) continue;
+      quality += item.effect.quality || 0;
+      reputation += item.effect.reputation || 0;
+    }
+    return { quality, reputation };
+  }
+
+  isOwned(itemId) {
+    return this.owned.includes(itemId);
+  }
+
+  getOwnedItems() {
+    return this.owned.map(id => EQUIPMENT_SHOP.find(e => e.id === id)).filter(Boolean);
+  }
+}
+
 // ===== Dark Routes Config =====
 const DARK_ROUTES = {
   luli: {
@@ -1159,6 +1489,9 @@ class UIManager {
     this.saveOverlay    = document.getElementById('save-overlay');
     this.settingsOverlay= document.getElementById('settings-overlay');
     this.logOverlay     = document.getElementById('log-overlay');
+    this.gachaOverlay   = document.getElementById('gacha-overlay');
+    this.shopOverlay    = document.getElementById('shop-overlay');
+    this.shopList       = document.getElementById('shop-list');
     this.saveSlots      = document.getElementById('save-slots');
     this.saveTitle      = document.getElementById('save-title');
     this.logList        = document.getElementById('log-list');
@@ -1429,7 +1762,9 @@ class UIManager {
     return !this.pauseOverlay.classList.contains('hidden') ||
            !this.saveOverlay.classList.contains('hidden') ||
            !this.settingsOverlay.classList.contains('hidden') ||
-           !this.logOverlay.classList.contains('hidden');
+           !this.logOverlay.classList.contains('hidden') ||
+           !this.gachaOverlay.classList.contains('hidden') ||
+           !this.shopOverlay.classList.contains('hidden');
   }
 
   closeAllOverlays() {
@@ -1437,6 +1772,45 @@ class UIManager {
     this.saveOverlay.classList.add('hidden');
     this.settingsOverlay.classList.add('hidden');
     this.logOverlay.classList.add('hidden');
+    this.gachaOverlay.classList.add('hidden');
+    this.shopOverlay.classList.add('hidden');
+  }
+
+  // ── 扭蛋 ──
+  openGacha() {
+    this.gachaOverlay.classList.remove('hidden');
+  }
+  closeGacha() {
+    this.gachaOverlay.classList.add('hidden');
+  }
+
+  // ── 商店 ──
+  openShop() {
+    this.renderShop();
+    this.shopOverlay.classList.remove('hidden');
+  }
+  closeShop() {
+    this.shopOverlay.classList.add('hidden');
+  }
+  renderShop() {
+    if (!this.shopList) return;
+    this.shopList.innerHTML = '';
+    var self = this;
+    EQUIPMENT_SHOP.forEach(function(item) {
+      var owned = game && game.equipment && game.equipment.isOwned(item.id);
+      var div = document.createElement('div');
+      div.className = 'shop-item';
+      div.innerHTML =
+        '<div><div class="shop-name">' + item.name + '</div><div class="shop-desc">' + item.desc + '</div></div>' +
+        '<span class="shop-cost">' + item.cost + '💰</span>' +
+        (owned
+          ? '<button class="owned">已拥有</button>'
+          : '<button data-id="' + item.id + '">购买</button>');
+      div.querySelector('button:not(.owned)').addEventListener('click', function() {
+        if (game) game.buyEquipment(item.id);
+      });
+      self.shopList.appendChild(div);
+    });
   }
 }
 
@@ -1505,6 +1879,16 @@ class GameState {
     const keyMap = { '陆离': 'lu_li_aff', '明朗': 'ming_lang_aff', '萧默': 'xiao_mo_aff' };
     return keyMap[name] || '';
   }
+
+  // 每日收入计算（基于设备+口碑）
+  getDailyIncome() {
+    var base = 80 + (this.vars.reputation || 0) * 2;
+    if (game && game.equipment) {
+      var eff = game.equipment.getEffects();
+      base += eff.quality * 0.5 + eff.reputation * 1.5;
+    }
+    return Math.floor(base + Math.random() * 40);
+  }
 }
 
 // ===== Main Game =====
@@ -1513,6 +1897,8 @@ class Game {
     this.state = new GameState();
     this.log = new DialogueLog();
     this.meta = new MetaManager();
+    this.gachaManager = new GachaManager();
+    this.equipment = new EquipmentManager();
     this.init();
   }
 
@@ -1550,6 +1936,12 @@ class Game {
       ui.openPause();
     });
 
+    // Gacha / Shop buttons in pause menu
+    var gachaBtn = document.getElementById('pause-gacha');
+    if (gachaBtn) gachaBtn.addEventListener('click', () => { ui.closePause(); ui.openGacha(); });
+    var shopBtn = document.getElementById('pause-shop');
+    if (shopBtn) shopBtn.addEventListener('click', () => { ui.closePause(); ui.openShop(); });
+
     // Pause menu buttons
     document.getElementById('pause-continue').addEventListener('click', () => { ui.closePause(); this.state.isInMenu = false; this.meta.resetIdle(); });
     document.getElementById('pause-save').addEventListener('click', () => { ui.closePause(); ui.openSave('save'); });
@@ -1563,6 +1955,19 @@ class Game {
     // Settings
     document.getElementById('settings-back').addEventListener('click', () => { ui.closeSettings(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
     document.getElementById('log-back').addEventListener('click', () => { ui.closeLog(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+
+    // Gacha back
+    var gb = document.getElementById('gacha-back');
+    if (gb) gb.addEventListener('click', () => { ui.closeGacha(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+    // Shop back
+    var sb = document.getElementById('shop-back');
+    if (sb) sb.addEventListener('click', () => { ui.closeShop(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+    // Gacha pool buttons
+    document.querySelectorAll('#gacha-overlay .gacha-btn[data-pool]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (game) game.drawGacha(this.getAttribute('data-pool'));
+      });
+    });
 
     // Settings sliders
     this.settingSpeed = document.getElementById('setting-speed');
@@ -1941,6 +2346,48 @@ class Game {
     } else if (scene.autoNext) {
       this.state.enterScene(scene.autoNext);
       this.advanceLine();
+    }
+  }
+
+  // ── Gacha ──
+  drawGacha(poolId) {
+    if (this.state.vars.money < GACHA_CONFIG.cost) {
+      ui.showToast('💰 钱不够！需要 ' + GACHA_CONFIG.cost + ' 金币');
+      return;
+    }
+    this.state.vars.money -= GACHA_CONFIG.cost;
+    var result = this.gachaManager.draw(poolId);
+    if (!result) return;
+    this.gachaManager.addHistory(result);
+    // Apply affection bonus
+    var affKey = poolId === 'luli' ? 'lu_li_aff' : (poolId === 'minglang' ? 'ming_lang_aff' : 'xiao_mo_aff');
+    this.state.vars[affKey] = (this.state.vars[affKey] || 0) + result.affBonus;
+    ui.syncAll(this.state.vars);
+    ui.closeGacha();
+    this.state.isInMenu = false;
+    // Show gacha scene
+    this.state.enterScene(result.sceneId);
+    this.advanceLine();
+  }
+
+  // ── Equipment Purchase ──
+  buyEquipment(itemId) {
+    var item = EQUIPMENT_SHOP.find(e => e.id === itemId);
+    if (!item) return;
+    if (this.equipment.isOwned(itemId)) {
+      ui.showToast('✅ 已拥有：' + item.name);
+      return;
+    }
+    if (this.state.vars.money < item.cost) {
+      ui.showToast('💰 钱不够！需要 ' + item.cost + ' 金币');
+      return;
+    }
+    this.state.vars.money -= item.cost;
+    var bought = this.equipment.purchase(itemId);
+    if (bought) {
+      ui.showToast('✅ 购入：' + bought.name);
+      ui.renderShop();
+      ui.syncAll(this.state.vars);
     }
   }
 }
