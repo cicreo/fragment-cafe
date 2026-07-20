@@ -98,6 +98,7 @@
     <button class="modal-btn" id="pause-settings">系统设置</button>
     <button class="modal-btn gacha-btn" id="pause-gacha">🔮 扭蛋抽签</button>
     <button class="modal-btn shop-btn" id="pause-shop">🛒 设备商店</button>
+    <button class="modal-btn" id="pause-gallery">🖼 CG画廊</button>
     <button class="modal-btn modal-btn-danger" id="pause-exit">返回标题</button>
   </div>
 </div>
@@ -159,6 +160,12 @@
 <!-- ====== 角色画面点击提示 ====== -->
 <div id="char-touch-indicator" class="hidden"></div>
 
+<!-- ====== CG 全屏查看器 ====== -->
+<div id="cg-viewer" onclick="if(ui)ui.closeCGViewer()">
+  <img id="cg-viewer-img" src="" alt="">
+  <div class="cg-viewer-title" id="cg-viewer-title"></div>
+</div>
+
 <!-- ====== 扭蛋抽签 ====== -->
 <div id="gacha-overlay" class="overlay hidden">
   <div class="modal">
@@ -169,6 +176,17 @@
     <button class="modal-btn gacha-btn" data-pool="xiaomo">❄️ 萧默 · 霜雪签</button>
     <div class="modal-btns">
       <button class="modal-btn modal-btn-sm" id="gacha-back">返回</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CG画廊 ====== -->
+<div id="gallery-overlay" class="overlay hidden">
+  <div class="modal modal-wide">
+    <div class="modal-title">🖼 CG画廊 <span id="gallery-count" style="font-size:12px;color:var(--text-dim)"></span></div>
+    <div class="gallery-grid" id="gallery-grid"></div>
+    <div class="modal-btns">
+      <button class="modal-btn modal-btn-sm" id="gallery-back">返回</button>
     </div>
   </div>
 </div>

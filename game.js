@@ -1349,6 +1349,34 @@ const EQUIPMENT_SHOP = [
   { id: 'eq5', name: '专业烘焙机', desc: '可以自己烘焙生豆了。咖啡师的终极玩具。', cost: 1000, effect: { quality: 25, reputation: 10 } },
 ];
 
+// ===== CG Gallery Config =====
+const CG_CONFIG = [
+  { id: 'cg_trio_photo',      name: '三人合影',        char: 'all',   unlock: 'story', trigger: 'day5_photo_together' },
+  { id: 'cg_fragment_vision',  name: '碎片幻象',        char: 'all',   unlock: 'story', trigger: 'day3_first_fragment' },
+  { id: 'cg_luli_rain_first',  name: '雨夜初遇',        char: 'luli',  unlock: 'story', trigger: 'rain_scene' },
+  { id: 'cg_luli_fullmoon',    name: '满月告别',        char: 'luli',  unlock: 'story', trigger: 'day6_brew_luli' },
+  { id: 'cg_luli_key',         name: '钥匙',            char: 'luli',  unlock: 'ending', trigger: 'end_luli_true' },
+  { id: 'cg_luli_coffee_bean', name: '咖啡豆',          char: 'luli',  unlock: 'gacha', trigger: 'gacha_luli_1' },
+  { id: 'cg_luli_wall',        name: '墙角的距离',      char: 'luli',  unlock: 'affection', trigger: 'luli', threshold: 65 },
+  { id: 'cg_luli_rain_kiss',   name: '雨夜温度',        char: 'luli',  unlock: 'affection', trigger: 'luli', threshold: 80 },
+  { id: 'cg_ming_first_meet',  name: '初见明媚',        char: 'minglang', unlock: 'story', trigger: 'meet_minglang' },
+  { id: 'cg_ming_rooftop',     name: '屋顶星辰',        char: 'minglang', unlock: 'gacha', trigger: 'gacha_ming_3' },
+  { id: 'cg_ming_true_end',    name: '晴空万里',        char: 'minglang', unlock: 'ending', trigger: 'end_ming_true' },
+  { id: 'cg_ming_guitar',      name: '吉他',            char: 'minglang', unlock: 'gacha', trigger: 'gacha_ming_2' },
+  { id: 'cg_ming_counter',     name: '吧台的距离',      char: 'minglang', unlock: 'affection', trigger: 'minglang', threshold: 65 },
+  { id: 'cg_ming_lap',         name: '午后膝枕',        char: 'minglang', unlock: 'affection', trigger: 'minglang', threshold: 80 },
+  { id: 'cg_xiao_first_meet',  name: '初见冷面',        char: 'xiaomo', unlock: 'story', trigger: 'first_customer' },
+  { id: 'cg_xiao_umbrella',    name: '雨中伞',          char: 'xiaomo', unlock: 'gacha', trigger: 'gacha_xiao_3' },
+  { id: 'cg_xiao_true_end',    name: '霜雪初融',        char: 'xiaomo', unlock: 'ending', trigger: 'end_xiao_true' },
+  { id: 'cg_xiao_teaching',    name: '教学时光',        char: 'xiaomo', unlock: 'gacha', trigger: 'gacha_xiao_1' },
+  { id: 'cg_xiao_backhug',     name: '背后的温度',      char: 'xiaomo', unlock: 'affection', trigger: 'xiaomo', threshold: 65 },
+  { id: 'cg_xiao_wall',        name: '质问的距离',      char: 'xiaomo', unlock: 'affection', trigger: 'xiaomo', threshold: 80 },
+  { id: 'cg_trio_cafe',        name: '三人修罗场',      char: 'all',   unlock: 'story', trigger: 'daily_event_trio' },
+  { id: 'cg_letter_flower',    name: '白花与信',        char: 'all',   unlock: 'affection', trigger: 'luli', threshold: 50 },
+  { id: 'cg_fullmoon_cafe',    name: '满月全景',        char: 'all',   unlock: 'story', trigger: 'day6_fullmoon_prep' },
+  { id: 'cg_player_back',      name: '围裙背影',        char: 'all',   unlock: 'ending', trigger: 'end_luli_true' },
+];
+
 // ===== Gacha Manager =====
 class GachaManager {
   constructor() {
@@ -1404,6 +1432,73 @@ class EquipmentManager {
   getOwnedItems() {
     return this.owned.map(id => EQUIPMENT_SHOP.find(e => e.id === id)).filter(Boolean);
   }
+}
+
+// ===== CG Gallery Manager =====
+class CGGallery {
+  constructor() {
+    this.unlocked = this.load();
+  }
+
+  load() {
+    try {
+      var raw = localStorage.getItem('fragment_cafe_cg');
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+
+  save() {
+    localStorage.setItem('fragment_cafe_cg', JSON.stringify(this.unlocked));
+  }
+
+  unlock(cgId) {
+    if (!this.unlocked.includes(cgId)) {
+      this.unlocked.push(cgId);
+      this.save();
+      // Show a toast notification
+      var cg = CG_CONFIG.find(c => c.id === cgId);
+      if (cg && typeof ui !== 'undefined') {
+        ui.showToast('🖼 CG解锁：' + cg.name);
+      }
+    }
+  }
+
+  unlockByScene(sceneId) {
+    CG_CONFIG.forEach(function(cg) {
+      if (cg.unlock === 'story' && cg.trigger === sceneId) {
+        this.unlock(cg.id);
+      }
+    }.bind(this));
+    // Also check for ending triggers
+    CG_CONFIG.forEach(function(cg) {
+      if (cg.unlock === 'ending' && cg.trigger === sceneId) {
+        this.unlock(cg.id);
+      }
+    }.bind(this));
+  }
+
+  unlockByGacha(sceneId) {
+    CG_CONFIG.forEach(function(cg) {
+      if (cg.unlock === 'gacha' && cg.trigger === sceneId) {
+        this.unlock(cg.id);
+      }
+    }.bind(this));
+  }
+
+  checkAffection(charKey, value) {
+    CG_CONFIG.forEach(function(cg) {
+      if (cg.unlock === 'affection' && cg.trigger === charKey && value >= cg.threshold) {
+        this.unlock(cg.id);
+      }
+    }.bind(this));
+  }
+
+  isUnlocked(cgId) {
+    return this.unlocked.includes(cgId);
+  }
+
+  getCount() { return this.unlocked.length; }
+  getTotal() { return CG_CONFIG.length; }
 }
 
 // ===== Dark Routes Config =====
@@ -1636,6 +1731,7 @@ class UIManager {
     this.gachaOverlay   = document.getElementById('gacha-overlay');
     this.shopOverlay    = document.getElementById('shop-overlay');
     this.shopList       = document.getElementById('shop-list');
+    this.galleryOverlay = document.getElementById('gallery-overlay');
     this.saveSlots      = document.getElementById('save-slots');
     this.saveTitle      = document.getElementById('save-title');
     this.logList        = document.getElementById('log-list');
@@ -1908,7 +2004,8 @@ class UIManager {
            !this.settingsOverlay.classList.contains('hidden') ||
            !this.logOverlay.classList.contains('hidden') ||
            !this.gachaOverlay.classList.contains('hidden') ||
-           !this.shopOverlay.classList.contains('hidden');
+           !this.shopOverlay.classList.contains('hidden') ||
+           !this.galleryOverlay.classList.contains('hidden');
   }
 
   closeAllOverlays() {
@@ -1918,6 +2015,7 @@ class UIManager {
     this.logOverlay.classList.add('hidden');
     this.gachaOverlay.classList.add('hidden');
     this.shopOverlay.classList.add('hidden');
+    this.galleryOverlay.classList.add('hidden');
   }
 
   // ── 扭蛋 ──
@@ -1956,6 +2054,58 @@ class UIManager {
       self.shopList.appendChild(div);
     });
   }
+
+  // ── CG Gallery ──
+  openGallery() {
+    this.renderGallery();
+    this.galleryOverlay.classList.remove('hidden');
+  }
+  closeGallery() {
+    this.galleryOverlay.classList.add('hidden');
+  }
+  renderGallery() {
+    var grid = document.getElementById('gallery-grid');
+    var countEl = document.getElementById('gallery-count');
+    if (!grid) return;
+    grid.innerHTML = '';
+    var self = this;
+    var unlockedCount = 0;
+    CG_CONFIG.forEach(function(cg) {
+      var unlocked = game && game.cgGallery && game.cgGallery.isUnlocked(cg.id);
+      if (unlocked) unlockedCount++;
+      var div = document.createElement('div');
+      div.className = 'gallery-item' + (unlocked ? '' : ' locked');
+      if (unlocked) {
+        var img = document.createElement('img');
+        img.src = 'assets/cg/' + cg.id + '.png';
+        img.alt = cg.name;
+        img.onerror = function() { this.style.display = 'none'; div.innerHTML = '<span class="lock-icon">?</span><div class="cg-label">' + cg.name + '</div>'; };
+        div.appendChild(img);
+        div.addEventListener('click', function() { self.openCGViewer(cg); });
+      } else {
+        div.innerHTML = '<span class="lock-icon">🔒</span>';
+      }
+      var label = document.createElement('div');
+      label.className = 'cg-label';
+      label.textContent = unlocked ? cg.name : '???';
+      div.appendChild(label);
+      grid.appendChild(div);
+    });
+    if (countEl) countEl.textContent = unlockedCount + '/' + CG_CONFIG.length;
+  }
+  openCGViewer(cg) {
+    var viewer = document.getElementById('cg-viewer');
+    var img = document.getElementById('cg-viewer-img');
+    var title = document.getElementById('cg-viewer-title');
+    if (!viewer || !img) return;
+    img.src = 'assets/cg/' + cg.id + '.png';
+    title.textContent = cg.name;
+    viewer.style.display = 'block';
+  }
+  closeCGViewer() {
+    var viewer = document.getElementById('cg-viewer');
+    if (viewer) viewer.style.display = 'none';
+  }
 }
 
 // ===== Game State =====
@@ -1986,6 +2136,11 @@ class GameState {
       } else {
         this.vars[key] = (this.vars[key] || 0) + value;
       }
+      // CG unlock by affection threshold
+      if (['lu_li_aff', 'ming_lang_aff', 'xiao_mo_aff'].includes(key) && game) {
+        var charKey = key === 'lu_li_aff' ? 'luli' : (key === 'ming_lang_aff' ? 'minglang' : 'xiaomo');
+        game.cgGallery.checkAffection(charKey, this.vars[key]);
+      }
     }
     if (ui) ui.syncAll(this.vars);
   }
@@ -2000,6 +2155,8 @@ class GameState {
     this.metaInterrupt = null;
     if (scene.onEnter) this.applyEffects(scene.onEnter);
     ui.clearChoices();
+    // CG unlock
+    if (game) game.cgGallery.unlockByScene(sceneId);
     return true;
   }
 
@@ -2043,6 +2200,7 @@ class Game {
     this.meta = new MetaManager();
     this.gachaManager = new GachaManager();
     this.equipment = new EquipmentManager();
+    this.cgGallery = new CGGallery();
     this.init();
   }
 
@@ -2085,6 +2243,8 @@ class Game {
     if (gachaBtn) gachaBtn.addEventListener('click', () => { ui.closePause(); ui.openGacha(); });
     var shopBtn = document.getElementById('pause-shop');
     if (shopBtn) shopBtn.addEventListener('click', () => { ui.closePause(); ui.openShop(); });
+    var galleryBtn = document.getElementById('pause-gallery');
+    if (galleryBtn) galleryBtn.addEventListener('click', () => { ui.closePause(); ui.openGallery(); });
 
     // Pause menu buttons
     document.getElementById('pause-continue').addEventListener('click', () => { ui.closePause(); this.state.isInMenu = false; this.meta.resetIdle(); });
@@ -2106,6 +2266,8 @@ class Game {
     // Shop back
     var sb = document.getElementById('shop-back');
     if (sb) sb.addEventListener('click', () => { ui.closeShop(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+    var galb = document.getElementById('gallery-back');
+    if (galb) galb.addEventListener('click', () => { ui.closeGallery(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
     // Gacha pool buttons
     document.querySelectorAll('#gacha-overlay .gacha-btn[data-pool]').forEach(function(btn) {
       btn.addEventListener('click', function() {
@@ -2536,6 +2698,8 @@ class Game {
     ui.syncAll(this.state.vars);
     ui.closeGacha();
     this.state.isInMenu = false;
+    // Unlock gacha CG
+    this.cgGallery.unlockByGacha(result.sceneId);
     // Show gacha scene
     this.state.enterScene(result.sceneId);
     this.advanceLine();
