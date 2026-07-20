@@ -793,6 +793,80 @@ html, body {
   transition: width 0.3s linear;
 }
 
+/* ===== Management Panel ===== */
+.mgmt-modal {
+  max-width: 450px !important;
+  padding: 16px 14px 12px !important;
+}
+
+.mgmt-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-dim);
+  padding-bottom: 6px;
+}
+
+.mgmt-tab {
+  flex: 1;
+  font-family: var(--font-title);
+  font-size: 13px;
+  padding: 6px 4px;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.mgmt-tab.active {
+  color: var(--accent-bright);
+  border-bottom-color: var(--accent);
+}
+
+.mgmt-content {
+  max-height: 40vh;
+  overflow-y: auto;
+  min-height: 120px;
+}
+
+/* Ingredient/furniture grid items */
+.mgmt-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #141428;
+  border: 1px solid #1a1a32;
+  padding: 8px 10px;
+  margin-bottom: 5px;
+}
+
+.mgmt-item-name { font-family: var(--font-title); font-size: 13px; color: var(--text-main); }
+.mgmt-item-info { font-size: 11px; color: var(--text-dim); }
+.mgmt-item-action { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.mgmt-item-action input[type="number"] {
+  width: 40px; background: #1a1a2e; color: var(--text-main); border: 1px solid var(--border-dim);
+  padding: 3px 4px; font-size: 12px; text-align: center;
+}
+.mgmt-item-action button {
+  font-size: 11px; padding: 3px 8px; cursor: pointer;
+  background: #1a2a1a; color: #aacccc; border: 1px solid #337744;
+}
+.mgmt-item-action button:hover { background: #223322; }
+.mgmt-item-action button.owned { background: #222; color: #555; border-color: #333; }
+
+/* Recipe list */
+.mgmt-recipe {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #141428; border: 1px solid #1a1a32;
+  padding: 8px 10px; margin-bottom: 5px;
+}
+.mgmt-recipe .price-input { width: 50px; background: #1a1a2e; color: var(--accent-bright); border: 1px solid var(--border-dim); padding: 3px 4px; font-size: 12px; text-align: center; }
+.mgmt-recipe .recipe-type { font-size: 10px; padding: 1px 6px; border-radius: 2px; }
+.type-coffee { background: #2a1a10; color: #c8a882; }
+.type-dessert { background: #1a1020; color: #ddaacc; }
+
 .modal-btns {
   margin-top: 16px;
 }

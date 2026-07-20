@@ -740,6 +740,7 @@ const STORY = {
     daily_evening_wrap: { lines: [
       { scene: 'evening', text: '傍晚。你收拾了吧台，数了数今天的收入。' },
       { speaker: '旁白', text: '又是平凡而珍贵的一天。明天，还会有人带着他们的故事来喝你的咖啡。' },
+      { speaker: '系统', text: '【今日收入已自动加入余额。可以到 ☕经营管理 里采购原料、研发新品、装饰店铺来提升收入！】' },
     ], autoNext: 'daily_morning' },
 
     // ── 扭蛋场景（陆离）──
@@ -1402,6 +1403,64 @@ const BGM_CONFIG = [
   { id: 'tense',   scene: 'tense',   file: 'assets/audio/bgm/bgm_tense.mp3',    name: '暗涌' },
 ];
 
+// ===== 经营系统：原材料 =====
+const INGREDIENTS = [
+  { id: 'bean_blend',    name: '拼配咖啡豆',  type: 'bean',  cost: 20, quality: 4, unlock: 'start' },
+  { id: 'bean_ethiopia', name: '埃塞俄比亚豆', type: 'bean',  cost: 40, quality: 8, unlock: 'day5' },
+  { id: 'bean_colombia', name: '哥伦比亚豆',   type: 'bean',  cost: 30, quality: 6, unlock: 'day3' },
+  { id: 'bean_kenya',    name: '肯尼亚AA豆',   type: 'bean',  cost: 50, quality: 10, unlock: 'day10' },
+  { id: 'milk',          name: '鲜牛奶',       type: 'dairy', cost: 10, quality: 3, unlock: 'start' },
+  { id: 'cream',         name: '淡奶油',       type: 'dairy', cost: 12, quality: 4, unlock: 'day3' },
+  { id: 'syrup_vanilla', name: '香草糖浆',     type: 'syrup', cost: 15, quality: 5, unlock: 'day5' },
+  { id: 'syrup_caramel', name: '焦糖糖浆',     type: 'syrup', cost: 15, quality: 5, unlock: 'day5' },
+  { id: 'cocoa',         name: '可可粉',       type: 'powder',cost: 10, quality: 4, unlock: 'start' },
+  { id: 'matcha',        name: '抹茶粉',       type: 'powder',cost: 20, quality: 7, unlock: 'day8' },
+  { id: 'flour',         name: '低筋面粉',     type: 'bake',  cost: 8,  quality: 2, unlock: 'day5' },
+  { id: 'butter',        name: '黄油',         type: 'bake',  cost: 15, quality: 4, unlock: 'day5' },
+  { id: 'sugar',         name: '细砂糖',       type: 'bake',  cost: 5,  quality: 2, unlock: 'start' },
+  { id: 'egg',           name: '鸡蛋',         type: 'bake',  cost: 6,  quality: 3, unlock: 'day3' },
+];
+
+// ===== 经营系统：配方 =====
+const RECIPES = [
+  { id: 'americano',    name:'美式咖啡',     type:'coffee', ingredients:{bean_blend:1},          cost:8,  basePrice:25, unlock:'start', quality:1, desc:'简单而纯粹。' },
+  { id: 'latte',        name:'拿铁',         type:'coffee', ingredients:{bean_blend:1,milk:1},   cost:14, basePrice:35, unlock:'start', quality:2, desc:'奶香和咖啡的经典搭配。' },
+  { id: 'mocha',        name:'摩卡',         type:'coffee', ingredients:{bean_blend:1,milk:1,cocoa:1}, cost:18, basePrice:40, unlock:'day3', quality:3, desc:'巧克力和咖啡的约会。' },
+  { id: 'caramel_mac',  name:'焦糖玛奇朵',   type:'coffee', ingredients:{bean_blend:1,milk:1,syrup_caramel:1}, cost:22, basePrice:45, unlock:'day5', quality:4, desc:'甜蜜的印记。' },
+  { id: 'ethiopia_pour',name:'手冲埃塞',     type:'coffee', ingredients:{bean_ethiopia:1},       cost:20, basePrice:55, unlock:'day10',quality:6, desc:'单一产地，花果香气。' },
+  { id: 'vanilla_latte',name:'香草拿铁',     type:'coffee', ingredients:{bean_blend:1,milk:1,syrup_vanilla:1}, cost:18, basePrice:45, unlock:'day6', quality:4, desc:'温柔的甜。' },
+  { id: 'matcha_latte', name:'抹茶拿铁',     type:'coffee', ingredients:{matcha:1,milk:1},       cost:22, basePrice:50, unlock:'day8', quality:5, desc:'和风融合。' },
+  { id: 'affogato',     name:'阿芙佳朵',     type:'coffee', ingredients:{bean_blend:1,cream:1},  cost:18, basePrice:48, unlock:'day12',quality:5, desc:'冰淇淋和浓缩的碰撞。' },
+  // 甜点
+  { id: 'hot_cocoa',    name:'热可可',       type:'dessert',ingredients:{cocoa:1,milk:1},       cost:12, basePrice:30, unlock:'day3', quality:3, desc:'冬日暖手必备。' },
+  { id: 'cake_choco',   name:'巧克力蛋糕',   type:'dessert',ingredients:{flour:1,cocoa:1,sugar:1,egg:1,butter:1}, cost:25, basePrice:55, unlock:'day7', quality:5, desc:'手工现烤。' },
+  { id: 'matcha_smooth',name:'抹茶冰沙',     type:'dessert',ingredients:{matcha:1,cream:1,milk:1}, cost:20, basePrice:50, unlock:'day9', quality:5, desc:'夏天的味道。' },
+  { id: 'pudding',      name:'焦糖布丁',     type:'dessert',ingredients:{egg:2,milk:1,sugar:1,syrup_caramel:1}, cost:18, basePrice:42, unlock:'day6', quality:4, desc:'Q弹丝滑。' },
+  { id: 'cookie',       name:'黄油曲奇',     type:'dessert',ingredients:{flour:2,butter:1,sugar:1,egg:1}, cost:16, basePrice:35, unlock:'day4', quality:3, desc:'经典小甜点。' },
+];
+
+// ===== 经营系统：家具装饰 =====
+const FURNITURE_SHOP = [
+  { id: 'chair_wood',   name:'原木椅',   type:'chair',  cost:50,  ambiance:3,  desc:'一把朴素但结实的木椅。' },
+  { id: 'table_round',  name:'小圆桌',   type:'table',  cost:80,  ambiance:3,  desc:'刚好够两个人面对面。' },
+  { id: 'plant_pot',    name:'小盆栽',   type:'decor',  cost:40,  ambiance:5,  desc:'绿色植物让空气更甜。' },
+  { id: 'lamp_vintage', name:'复古吊灯', type:'light',  cost:120, ambiance:8,  desc:'暖黄色的光最适合咖啡馆。' },
+  { id: 'bookshelf',    name:'旧书架',   type:'decor',  cost:150, ambiance:10, desc:'摆满二手书，客人可以取阅。' },
+  { id: 'sofa_cozy',    name:'双人沙发', type:'chair',  cost:200, ambiance:12, desc:'靠窗的位置，阳光正好。' },
+  { id: 'wall_green',   name:'绿植墙',   type:'decor',  cost:300, ambiance:18, desc:'一整面墙的藤蔓和蕨类。' },
+  { id: 'painting',     name:'手绘风景画',type:'decor', cost:100, ambiance:7,  desc:'巷子画家送的。' },
+  { id: 'rug_warm',     name:'羊毛地毯', type:'decor',  cost:130, ambiance:9,  desc:'踩上去很软。' },
+  { id: 'chandelier',   name:'水晶吊灯', type:'light',  cost:350, ambiance:20, desc:'镇店之宝。' },
+];
+
+// ===== 经营系统：研发配方 =====
+const RESEARCH_RECIPES = [
+  { id:'discover_hotcocoa',result:'hot_cocoa', hint:'可可粉 + 牛奶融合会怎样？', ingredients:{cocoa:1,milk:1}, cost:5, name:'热可可' },
+  { id:'discover_pudding', result:'pudding',   hint:'焦糖和蛋奶的组合……',       ingredients:{egg:2,milk:1,sugar:1,syrup_caramel:1}, cost:8, name:'焦糖布丁' },
+  { id:'discover_matchas',result:'matcha_smooth',hint:'抹茶和奶油的夏日幻想。', ingredients:{matcha:1,cream:1,milk:1}, cost:8, name:'抹茶冰沙' },
+  { id:'discover_cake',   result:'cake_choco', hint:'面粉、可可、黄油……烘焙的味道。', ingredients:{flour:1,cocoa:1,sugar:1,egg:1,butter:1}, cost:10, name:'巧克力蛋糕' },
+];
+
 // ===== BGM Manager =====
 class BGMManager {
   constructor() {
@@ -1480,6 +1539,148 @@ class BGMManager {
 
   playForDark() {
     this.play('tense', true);
+  }
+}
+
+// ===== Management Manager =====
+class ManagementManager {
+  constructor() {
+    this.inventory = this.loadInv();
+    this.unlockedRecipes = this.loadRecipes();
+    this.ownedFurniture = this.loadFurniture();
+    this.discovered = this.loadDiscovered();
+    this.prices = this.loadPrices();
+  }
+
+  loadInv() {
+    try { var r = JSON.parse(localStorage.getItem('fc_inv')); return r || {}; } catch(e) { return {}; }
+  }
+  saveInv() { localStorage.setItem('fc_inv', JSON.stringify(this.inventory)); }
+
+  loadRecipes() {
+    var r = ['americano','latte']; // starting recipes
+    try { var s = JSON.parse(localStorage.getItem('fc_recipes')); if (s) r = s; } catch(e) {}
+    return r;
+  }
+  saveRecipes() { localStorage.setItem('fc_recipes', JSON.stringify(this.unlockedRecipes)); }
+
+  loadFurniture() {
+    try { var r = JSON.parse(localStorage.getItem('fc_furn')); return r || []; } catch(e) { return []; }
+  }
+  saveFurniture() { localStorage.setItem('fc_furn', JSON.stringify(this.ownedFurniture)); }
+
+  loadDiscovered() {
+    try { var r = JSON.parse(localStorage.getItem('fc_disc')); return r || []; } catch(e) { return []; }
+  }
+  saveDiscovered() { localStorage.setItem('fc_disc', JSON.stringify(this.discovered)); }
+
+  loadPrices() {
+    try { var r = JSON.parse(localStorage.getItem('fc_prices')); return r || {}; } catch(e) { return {}; }
+  }
+  savePrices() { localStorage.setItem('fc_prices', JSON.stringify(this.prices)); }
+
+  // Inventory
+  getStock(ingId) { return this.inventory[ingId] || 0; }
+  addStock(ingId, qty) { this.inventory[ingId] = this.getStock(ingId) + qty; this.saveInv(); }
+  buyIngredient(ingId, qty) {
+    var ing = INGREDIENTS.find(function(i) { return i.id === ingId; });
+    if (!ing) return false;
+    var totalCost = ing.cost * qty;
+    if (game.state.vars.money < totalCost) return false;
+    game.state.vars.money -= totalCost;
+    this.addStock(ingId, qty);
+    ui.syncAll(game.state.vars);
+    return true;
+  }
+
+  // Recipes
+  isRecipeUnlocked(recipeId) { return this.unlockedRecipes.includes(recipeId); }
+  unlockRecipe(recipeId) {
+    if (!this.isRecipeUnlocked(recipeId)) {
+      this.unlockedRecipes.push(recipeId);
+      this.saveRecipes();
+      var recipe = RECIPES.find(function(r) { return r.id === recipeId; });
+      if (recipe) ui.showToast('🍽 新配方解锁：' + recipe.name);
+    }
+  }
+  checkDayUnlocks(day) {
+    var self = this;
+    RECIPES.forEach(function(r) {
+      if (r.unlock === 'day' + day) self.unlockRecipe(r.id);
+      var unlockDay = parseInt(r.unlock.replace('day',''));
+      if (!isNaN(unlockDay) && day >= unlockDay) self.unlockRecipe(r.id);
+    });
+    INGREDIENTS.forEach(function(ing) {
+      if (ing.unlock === 'day' + day) ui.showToast('🛒 新材料可购买：' + ing.name);
+    });
+  }
+
+  getRecipePrice(recipeId) {
+    var recipe = RECIPES.find(function(r) { return r.id === recipeId; });
+    if (!recipe) return 0;
+    return this.prices[recipeId] || recipe.basePrice;
+  }
+  setRecipePrice(recipeId, price) {
+    this.prices[recipeId] = price;
+    this.savePrices();
+  }
+
+  // Furniture
+  isFurnitureOwned(furnId) { return this.ownedFurniture.includes(furnId); }
+  buyFurniture(furnId) {
+    var furn = FURNITURE_SHOP.find(function(f) { return f.id === furnId; });
+    if (!furn || this.isFurnitureOwned(furnId)) return false;
+    if (game.state.vars.money < furn.cost) return false;
+    game.state.vars.money -= furn.cost;
+    this.ownedFurniture.push(furnId);
+    this.saveFurniture();
+    ui.syncAll(game.state.vars);
+    return true;
+  }
+  getAmbiance() {
+    var total = 10; // base ambiance
+    var self = this;
+    this.ownedFurniture.forEach(function(fid) {
+      var f = FURNITURE_SHOP.find(function(x) { return x.id === fid; });
+      if (f) total += f.ambiance;
+    });
+    return total;
+  }
+
+  // Research
+  research(recipeId) {
+    var rr = RESEARCH_RECIPES.find(function(r) { return r.id === recipeId; });
+    if (!rr || this.discovered.includes(rr.id)) return null;
+    // Check ingredients in inventory
+    var canResearch = true;
+    for (var ingId in rr.ingredients) {
+      if (this.getStock(ingId) < rr.ingredients[ingId]) canResearch = false;
+    }
+    if (!canResearch) return null;
+    if (game.state.vars.money < rr.cost) return null;
+    // Consume ingredients and money
+    game.state.vars.money -= rr.cost;
+    for (var ingId2 in rr.ingredients) {
+      this.inventory[ingId2] -= rr.ingredients[ingId2];
+    }
+    this.saveInv();
+    this.discovered.push(rr.id);
+    this.saveDiscovered();
+    this.unlockRecipe(rr.result);
+    ui.syncAll(game.state.vars);
+    return rr;
+  }
+
+  // Income calculation
+  calcDailyIncome() {
+    var base = 80;
+    var repBonus = (game.state.vars.reputation || 0) * 2;
+    var ambianceBonus = this.getAmbiance() * 0.5;
+    var equipEffects = game.equipment ? game.equipment.getEffects() : { quality: 0, reputation: 0 };
+    var qualityBonus = equipEffects.quality * 0.8;
+    var equipRepBonus = equipEffects.reputation * 1.5;
+    var randomBonus = Math.floor(Math.random() * 60);
+    return Math.floor(base + repBonus + ambianceBonus + qualityBonus + equipRepBonus + randomBonus);
   }
 }
 
@@ -1847,6 +2048,8 @@ class UIManager {
     this.phoneProgressBar = document.getElementById('phone-progress-bar');
     this.phoneAccept    = document.getElementById('phone-accept');
     this.phoneDecline   = document.getElementById('phone-decline');
+    this.mgmtOverlay    = document.getElementById('mgmt-overlay');
+    this.mgmtContent    = document.getElementById('mgmt-content');
     this.saveSlots      = document.getElementById('save-slots');
     this.saveTitle      = document.getElementById('save-title');
     this.logList        = document.getElementById('log-list');
@@ -2123,7 +2326,8 @@ class UIManager {
            !this.gachaOverlay.classList.contains('hidden') ||
            !this.shopOverlay.classList.contains('hidden') ||
            !this.galleryOverlay.classList.contains('hidden') ||
-           !this.phoneOverlay.classList.contains('hidden');
+           !this.phoneOverlay.classList.contains('hidden') ||
+           !this.mgmtOverlay.classList.contains('hidden');
   }
 
   closeAllOverlays() {
@@ -2135,6 +2339,7 @@ class UIManager {
     this.shopOverlay.classList.add('hidden');
     this.galleryOverlay.classList.add('hidden');
     this.phoneOverlay.classList.add('hidden');
+    this.mgmtOverlay.classList.add('hidden');
   }
 
   // ── 扭蛋 ──
@@ -2225,6 +2430,126 @@ class UIManager {
     var viewer = document.getElementById('cg-viewer');
     if (viewer) viewer.style.display = 'none';
   }
+
+  // ── Management Panel ──
+  openMgmt(tab) {
+    this.mgmtOverlay.classList.remove('hidden');
+    this.renderMgmtTab(tab || 'menu');
+    // Activate tab button
+    var tabs = document.querySelectorAll('.mgmt-tab');
+    tabs.forEach(function(t) { t.classList.remove('active'); });
+    var activeTab = document.querySelector('.mgmt-tab[data-tab="' + (tab||'menu') + '"]');
+    if (activeTab) activeTab.classList.add('active');
+  }
+  closeMgmt() { this.mgmtOverlay.classList.add('hidden'); }
+
+  renderMgmtTab(tab) {
+    if (!this.mgmtContent) return;
+    this.mgmtContent.innerHTML = '';
+    switch(tab) {
+      case 'menu': this.renderMenuTab(); break;
+      case 'ingredients': this.renderIngredientsTab(); break;
+      case 'decor': this.renderDecorTab(); break;
+      case 'research': this.renderResearchTab(); break;
+    }
+  }
+
+  renderMenuTab() {
+    var self = this;
+    var unlocked = game.mgmt.unlockedRecipes;
+    RECIPES.forEach(function(r) {
+      if (!unlocked.includes(r.id)) return;
+      var price = game.mgmt.getRecipePrice(r.id);
+      var div = document.createElement('div'); div.className = 'mgmt-recipe';
+      div.innerHTML =
+        '<div><div class="mgmt-item-name">' + r.name + ' <span class="recipe-type type-' + r.type + '">' + (r.type==='coffee'?'咖啡':'甜点') + '</span></div>' +
+        '<div class="mgmt-item-info">' + r.desc + ' · 成本' + r.cost + '💰</div></div>' +
+        '<div class="mgmt-item-action"><span style="color:var(--money)">定价</span> <input class="price-input" type="number" value="' + price + '" min="1" data-id="' + r.id + '"> 💰</div>';
+      self.mgmtContent.appendChild(div);
+    });
+    // Price change listeners
+    this.mgmtContent.querySelectorAll('.price-input').forEach(function(inp) {
+      inp.addEventListener('change', function() {
+        game.mgmt.setRecipePrice(this.getAttribute('data-id'), parseInt(this.value) || 1);
+      });
+    });
+  }
+
+  renderIngredientsTab() {
+    var self = this;
+    var money = game.state.vars.money;
+    INGREDIENTS.forEach(function(ing) {
+      var d = parseInt(ing.unlock.replace('day',''));
+      if (isNaN(d) || game.state.vars.day < d) return;
+      var stock = game.mgmt.getStock(ing.id);
+      var div = document.createElement('div'); div.className = 'mgmt-item';
+      div.innerHTML =
+        '<div><div class="mgmt-item-name">' + ing.name + '</div><div class="mgmt-item-info">单价' + ing.cost + '💰 · 品质' + ing.quality + ' · 库存 ' + stock + '</div></div>' +
+        '<div class="mgmt-item-action"><input type="number" value="1" min="1" max="20" id="qty_' + ing.id + '"><button data-id="' + ing.id + '">购买</button></div>';
+      self.mgmtContent.appendChild(div);
+    });
+    this.mgmtContent.querySelectorAll('button[data-id]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = this.getAttribute('data-id');
+        var qty = parseInt(document.getElementById('qty_' + id).value) || 1;
+        if (game.mgmt.buyIngredient(id, qty)) {
+          ui.showToast('✅ 购入 ' + (INGREDIENTS.find(function(i){return i.id===id;})||{}).name || id);
+          self.renderIngredientsTab();
+        } else { ui.showToast('💰 钱不够！'); }
+      });
+    });
+  }
+
+  renderDecorTab() {
+    var self = this;
+    var money = game.state.vars.money;
+    document.getElementById('mgmt-content').innerHTML =
+      '<div class="mgmt-item-info" style="text-align:center;margin-bottom:10px">当前氛围度：' + game.mgmt.getAmbiance() + '</div>';
+    FURNITURE_SHOP.forEach(function(f) {
+      var owned = game.mgmt.isFurnitureOwned(f.id);
+      var div = document.createElement('div'); div.className = 'mgmt-item';
+      div.innerHTML =
+        '<div><div class="mgmt-item-name">' + f.name + '</div><div class="mgmt-item-info">氛围+' + f.ambiance + ' · ' + f.desc + '</div></div>' +
+        '<div class="mgmt-item-action"><span style="color:var(--money)">' + f.cost + '💰</span> ' +
+        (owned ? '<button class="owned">已拥有</button>' : '<button data-id="' + f.id + '">购买</button>') + '</div>';
+      self.mgmtContent.appendChild(div);
+    });
+    this.mgmtContent.querySelectorAll('button[data-id]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (game.mgmt.buyFurniture(this.getAttribute('data-id'))) {
+          ui.showToast('✅ 购入家具');
+          self.renderDecorTab();
+        } else { ui.showToast('💰 钱不够！'); }
+      });
+    });
+  }
+
+  renderResearchTab() {
+    var self = this;
+    var content = this.mgmtContent;
+    content.innerHTML = '<div class="mgmt-item-info" style="text-align:center;margin-bottom:8px">消耗材料+金币，研发出新配方！</div>';
+    RESEARCH_RECIPES.forEach(function(rr) {
+      var discovered = game.mgmt.discovered.includes(rr.id);
+      var unlocked = game.mgmt.isRecipeUnlocked(rr.result);
+      var div = document.createElement('div'); div.className = 'mgmt-item';
+      var ingList = Object.entries(rr.ingredients).map(function(e){ var ing=INGREDIENTS.find(function(i){return i.id===e[0];}); return (ing?ing.name:e[0])+'×'+e[1]; }).join(' + ');
+      if (discovered || unlocked) {
+        div.innerHTML = '<div><div class="mgmt-item-name">' + rr.name + '</div><div class="mgmt-item-info">' + ingList + '</div></div><div class="mgmt-item-action"><span style="color:var(--accent)">✅ 已习得</span></div>';
+      } else {
+        div.innerHTML =
+          '<div><div class="mgmt-item-name">???</div><div class="mgmt-item-info">' + rr.hint + '</div></div>' +
+          '<div class="mgmt-item-action"><span style="color:var(--money)">' + rr.cost + '💰</span> <button data-id="' + rr.id + '">研发</button></div>';
+      }
+      content.appendChild(div);
+    });
+    content.querySelectorAll('button[data-id]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var result = game.mgmt.research(this.getAttribute('data-id'));
+        if (result) { ui.showToast('🔬 研发成功：' + result.name); self.renderResearchTab(); }
+        else { ui.showToast('❌ 材料不足或钱不够'); }
+      });
+    });
+  }
 }
 
 // ===== Game State =====
@@ -2302,11 +2627,8 @@ class GameState {
 
   // 每日收入计算（基于设备+口碑）
   getDailyIncome() {
+    if (game && game.mgmt) return game.mgmt.calcDailyIncome();
     var base = 80 + (this.vars.reputation || 0) * 2;
-    if (game && game.equipment) {
-      var eff = game.equipment.getEffects();
-      base += eff.quality * 0.5 + eff.reputation * 1.5;
-    }
     return Math.floor(base + Math.random() * 40);
   }
 }
@@ -2321,6 +2643,7 @@ class Game {
     this.equipment = new EquipmentManager();
     this.cgGallery = new CGGallery();
     this.bgm = new BGMManager();
+    this.mgmt = new ManagementManager();
     this.init();
   }
 
@@ -2388,6 +2711,20 @@ class Game {
     if (sb) sb.addEventListener('click', () => { ui.closeShop(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
     var galb = document.getElementById('gallery-back');
     if (galb) galb.addEventListener('click', () => { ui.closeGallery(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+
+    // Management
+    var mgmtBtn = document.getElementById('pause-mgmt');
+    if (mgmtBtn) mgmtBtn.addEventListener('click', () => { ui.closePause(); ui.openMgmt('menu'); });
+    var mgmtBack = document.getElementById('mgmt-back');
+    if (mgmtBack) mgmtBack.addEventListener('click', () => { ui.closeMgmt(); if (!ui.isAnyOverlayOpen()) this.state.isInMenu = false; });
+    // Tab buttons
+    document.querySelectorAll('.mgmt-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        ui.renderMgmtTab(this.getAttribute('data-tab'));
+        document.querySelectorAll('.mgmt-tab').forEach(function(t) { t.classList.remove('active'); });
+        this.classList.add('active');
+      });
+    });
 
     // Phone buttons
     var pa = document.getElementById('phone-accept');
@@ -2574,9 +2911,17 @@ class Game {
       if (nextScene === 'daily_morning' && this.state.vars.day >= 21) {
         nextScene = 'ending_dawn';
       }
-      // 来电检测：进入日常早晨时检查
+      // 来电检测 + 每日结算 + 配方解锁
       if (nextScene === 'daily_morning') {
         this.checkPhoneCalls();
+        // 每日收入
+        if (this.mgmt && this.state.vars.day >= 7) {
+          var income = this.state.getDailyIncome();
+          this.state.vars.money += income;
+          ui.syncAll(this.state.vars);
+        }
+        // 配方解锁
+        if (this.mgmt) this.mgmt.checkDayUnlocks(this.state.vars.day);
       }
       // 黑化检测：尊重玩家选择但高好感+低选择触发黑化
       if (nextScene === 'ending_resolve_luli' && this.state.vars.lu_li_aff >= 80) {
