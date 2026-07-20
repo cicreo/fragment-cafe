@@ -5,13 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>碎片咖啡</title>
 <style>
-  /* 内联关键字体 + 错误提示，确保即使 CSS 加载失败也有显示 */
   body { background: #0a0a0f; color: #f0e6d3; font-family: 'SimSun','STSong','Noto Serif SC',serif; margin:0; }
   #boot-error { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); color:#ff4466; font-size:16px; text-align:center; padding:20px; z-index:9999; background:#0a0a0f; max-width:90%; word-break:break-all; }
+  /* 微信/QQ内置浏览器提示 */
+  #wechat-tip { display:none; position:fixed; top:0; left:0; width:100%; z-index:10000; background:#1a1020; border-bottom:2px solid #c8a882; padding:14px 16px; text-align:center; color:#f0c070; font-size:15px; line-height:1.6; }
+  #wechat-tip span { color:#ffd700; font-weight:bold; }
 </style>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<div id="wechat-tip">
+  ✨ 请点击右上角 <span>···</span> → 选择 <span>在浏览器中打开</span> ✨
+</div>
 
 <div id="boot-error"></div>
 
@@ -151,6 +157,17 @@
 <!-- ====== 角色画面点击提示 ====== -->
 <div id="char-touch-indicator" class="hidden"></div>
 
+<script>
+// 检测微信/QQ内置浏览器，提示用外部浏览器打开
+(function(){
+  var ua = navigator.userAgent || '';
+  var isWechat = /MicroMessenger/i.test(ua);
+  var isQQ = /QQ\//i.test(ua) && !/MicroMessenger/i.test(ua);
+  if (isWechat || isQQ) {
+    document.getElementById('wechat-tip').style.display = 'block';
+  }
+})();
+</script>
 <script src="game.js"></script>
 </body>
 </html>

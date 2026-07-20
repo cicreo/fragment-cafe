@@ -1190,6 +1190,8 @@ class UIManager {
 
   setScene(scene) {
     if (scene === this.currentScene) return;
+    // 离开雨景时清理雨滴
+    if (this.currentScene === 'rain') this.clearRain();
     this.currentScene = scene;
     this.sceneBg.className = '';
     if (USE_IMAGES && IMG.bg[scene]) {
@@ -1200,6 +1202,23 @@ class UIManager {
       case 'evening': this.sceneBg.className = 'scene-evening'; break;
       case 'rain': this.sceneBg.className = 'scene-rain'; this.spawnRain(); break;
       default: this.sceneBg.className = 'scene-intro'; break;
+    }
+  }
+
+  clearRain() {
+    const sceneArea = document.getElementById('scene-area');
+    sceneArea.querySelectorAll('.rain-drop').forEach(d => d.remove());
+  }
+
+  // 初始化所有背景图片CSS变量（解决intro不显示的问题）
+  initBgImages() {
+    if (!USE_IMAGES) return;
+    var keys = ['intro', 'cafe', 'evening', 'rain'];
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (IMG.bg[k]) {
+        this.sceneBg.style.setProperty('--bg-' + k, 'url(' + IMG.bg[k] + ')');
+      }
     }
   }
 
@@ -1291,8 +1310,8 @@ class UIManager {
   }
 
   spawnRain() {
+    this.clearRain();
     const sceneArea = document.getElementById('scene-area');
-    sceneArea.querySelectorAll('.rain-drop').forEach(d => d.remove());
     for (let i = 0; i < 40; i++) {
       const drop = document.createElement('div');
       drop.className = 'rain-drop';
@@ -1628,6 +1647,9 @@ class Game {
         this.triggerMeta('log');
       }
     });
+
+    // Init background images (fix intro not showing)
+    ui.initBgImages();
 
     // Start story
     this.state.enterScene('intro');
